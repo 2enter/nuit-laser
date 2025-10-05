@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+@plugin 'daisyui';
+@plugin '@2enter/web-kit/tw-plugin/utils';
+@plugin '@2enter/web-kit/tw-plugin/mobile_lock';
+@source '../node_modules/@2enter/web-kit';
