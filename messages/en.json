@@ -1,5 +1,6 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"error": "Error",
-	"switchLocaleConfirm": "Switch language will lose unsaved changes. Are you sure?"
+	"switchLocaleConfirm": "Switch language will lose unsaved changes. Are you sure?",
+	"timesup": "Times Up!"
 }

@@ -1,5 +1,6 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"error": "錯誤",
-	"switchLocaleConfirm": "切換語言將導致流失所有繪畫進度，確定執行嗎？"
+	"switchLocaleConfirm": "切換語言將導致流失所有繪畫進度，確定執行嗎？",
+	"timesup": "時間到！"
 }
