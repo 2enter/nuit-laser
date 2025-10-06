@@ -5,14 +5,13 @@ export const POST = async ({ request }) => {
 	const fd = await request.formData();
 	const svg = fd.get('svg') as File;
 	const png = fd.get('png') as File;
-	const pos = +(fd.get('pos') ?? ('0' as string));
+	const pos = parseInt(fd.get('pos') as string);
 
 	const filename = getCurrentDateTimeString();
 
-	const svgPath = `uploads/${pos}-${filename}.svg`;
-	const pngPath = `uploads/${pos}-${filename}.png`;
+	const svgPath = `uploads/${pos}/${filename}.svg`;
+	const pngPath = `uploads/${pos}/${filename}.png`;
 
-	console.log(svg, png);
 	await fs.promises.writeFile(svgPath, Buffer.from(await svg.arrayBuffer()));
 	await fs.promises.writeFile(pngPath, Buffer.from(await png.arrayBuffer()));
 
