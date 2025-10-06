@@ -2,10 +2,12 @@
 	import type { Locale } from '@/paraglide/runtime';
 	import 'js-draw/bundledStyles';
 	import { getLocale, locales, setLocale } from '@/paraglide/runtime';
+	import { sleep } from '@2enter/web-kit/runtime';
 	import { m } from '@/paraglide/messages';
 	import { Editor, Color4, PenTool, EraserTool, Vec2, EraserMode } from 'js-draw';
 	import { onMount } from 'svelte';
 	import { localizations } from '@/localization';
+	import { page } from '$app/state';
 
 	const locale = getLocale();
 	const anotherLocale = locales.find((l) => l !== locale) as Locale;
@@ -16,9 +18,10 @@
 
 	let dom = $state<HTMLDivElement>();
 
-	let resultUrl = $state<string | null>(null);
 	let svgFile = $state<File>();
 	let pngFile = $state<File>();
+	let resultImgUrl = $state<string>();
+	let timesup = $state(false);
 
 	function getCountDown() {
 		const now = new Date().getSeconds();
@@ -26,15 +29,23 @@
 	}
 
 	async function upload() {
-		if (!editor || !svgFile || !pngFile) return;
+		if (!editor) return;
+		await genSubmitData();
+		if (!svgFile || !pngFile) return;
+
+		timesup = true;
+
+		const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
 		formdata.append('png', pngFile);
+		formdata.append('pos', pos);
 		await fetch('/api/upload', { method: 'POST', body: formdata });
+		await sleep(2000);
 		window.location.reload();
 	}
 
-	async function updateResultUrl() {
+	async function genSubmitData() {
 		if (!editor || !dom) return;
 		if (editor.history.undoStackSize === 0) return;
 		{
@@ -47,8 +58,8 @@
 			svgFile = file;
 		}
 		{
-			const png = editor.toDataURL('image/png', Vec2.of(dom.clientHeight / 2, dom.clientHeight));
-			const blob = await fetch(png).then((res) => res.blob());
+			resultImgUrl = editor.toDataURL('image/png', Vec2.of(dom.clientHeight / 2, dom.clientHeight));
+			const blob = await fetch(resultImgUrl).then((res) => res.blob());
 			const file = new File([blob], 'image.png', { type: 'image/png' });
 			pngFile = file;
 		}
@@ -65,10 +76,19 @@
 
 		const height = dom.clientHeight;
 		const width = height / 2;
-		editor.getRootElement().style.height = `${height}px`;
-		editor.getRootElement().style.width = `${width}px`;
+		const rootEl = editor.getRootElement();
+		rootEl.style.height = `${height}px`;
+		rootEl.style.width = `${width}px`;
+		rootEl.addEventListener('touchstart', (ev) => {
+			if (ev.touches.length > 1) {
+				ev.preventDefault();
+				ev.stopPropagation();
+				return false;
+			}
+			return true;
+		});
 
-		dom.addEventListener('touchend', () => updateResultUrl());
+		// dom.addEventListener('touchend', () => updateResultUrl());
 
 		editor.dispatch(
 			editor.setBackgroundStyle({
@@ -97,7 +117,7 @@
 		init();
 		const interval = setInterval(() => {
 			countdown = getCountDown();
-			if (countdown === 1) {
+			if (countdown === 60) {
 				upload();
 			}
 		}, 1000);
@@ -121,14 +141,20 @@
 	{/if}
 </button>
 
-<div class="fixed top-0 right-0 p-3 text-5xl font-bold text-black">
+<div
+	class:text-rose-600={countdown < 15}
+	class:animate-bounce={countdown < 8}
+	class="fixed top-0 right-0 p-4 text-5xl font-bold text-black"
+>
 	{countdown}
 </div>
-
-{#if resultUrl}
-	<img src={resultUrl} alt="" />
-{/if}
 
 <!-- <div class="fixed top-0 center-content w-screen">
 	<button class="btn" onclick={upload}>click</button>
 </div> -->
+
+{#if timesup}
+	<div class="full-screen center-content text-5xl text-white backdrop-blur-sm">
+		{m.timesup()}
+	</div>
+{/if}
