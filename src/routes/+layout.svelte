@@ -12,10 +12,6 @@
 	setInputState();
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
-
 {@render children?.()}
 
 <dialog bind:this={sysState.dialog} class="modal modal-middle">

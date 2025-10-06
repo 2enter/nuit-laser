@@ -4,3 +4,64 @@
 @plugin '@2enter/web-kit/tw-plugin/utils';
 @plugin '@2enter/web-kit/tw-plugin/mobile_lock';
 @source '../node_modules/@2enter/web-kit';
+
+/** {
+	@apply touch-pan-x touch-pan-y;
+}*/
+
+div[role='toolbar'] {
+	@apply fixed bottom-0 gap-5 bg-transparent *:bg-transparent;
+
+	.toolbar-action-row {
+		/*@apply justify-between px-2;*/
+		@apply hidden;
+	}
+
+	.toolbar-tool-row {
+		@apply bg-primary py-4;
+	}
+}
+
+.toolbar-button {
+	@apply size-[14vw] p-1;
+}
+
+.toolbar-edgemenu {
+	@apply w-[95%] bg-secondary text-white;
+
+	input,
+	select,
+	button {
+		@apply text-white;
+	}
+}
+
+.toolbar-internalWidgetId--hand-tool-widget,
+.toolbar-internalWidgetId--insert-image-widget,
+.toolbar-internalWidgetId--selection-tool-widget,
+.toolbar-internalWidgetId--text-tool-widget,
+.toolbar-internalWidgetId--document-properties-widget {
+	@apply hidden;
+}
+
+.choice-button {
+	@apply rounded-md;
+}
+
+.selected [role='switch'],
+.checked {
+	@apply rounded-xl bg-black p-1 shadow-inner shadow-white/40;
+}
+
+input[type='range'] {
+	@apply range range-primary range-lg;
+}
+
+.pickColorInstructions {
+	@apply ml-10 bg-info px-2 text-sm text-info-content;
+}
+
+input,
+select {
+	@apply rounded-md pl-1 text-sm text-info-content;
+}

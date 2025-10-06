@@ -5,10 +5,6 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-const { BACKEND_HOST } = process.env;
-const API_BASE_URL = `${BACKEND_HOST ?? 'localhost'}:8080`;
-console.log('API base URL: ', API_BASE_URL);
-
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
