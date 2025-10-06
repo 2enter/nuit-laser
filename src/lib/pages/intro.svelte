@@ -1,21 +1,20 @@
 <script lang="ts">
+	import type { Locale } from '@/paraglide/runtime';
 	import 'js-draw/bundledStyles';
 	import { getLocale, locales, setLocale } from '@/paraglide/runtime';
-	import type { Locale } from '@/paraglide/runtime';
-	import { innerHeight, innerWidth } from 'svelte/reactivity/window';
+	import { m } from '@/paraglide/messages';
 	import { Editor, Color4, PenTool, EraserTool, Vec2, EraserMode } from 'js-draw';
 	import { onMount } from 'svelte';
 	import { localizations } from '@/localization';
 
 	const locale = getLocale();
 	const anotherLocale = locales.find((l) => l !== locale) as Locale;
-
 	const localization = localizations[locale];
 
 	let editor = $state<Editor>();
 	let countdown = $state(getCountDown());
 
-	let dom: HTMLDivElement;
+	let dom = $state<HTMLDivElement>();
 
 	let resultUrl = $state<string | null>(null);
 	let svgFile = $state<File>();
@@ -36,7 +35,7 @@
 	}
 
 	async function updateResultUrl() {
-		if (!editor) return;
+		if (!editor || !dom) return;
 		if (editor.history.undoStackSize === 0) return;
 		{
 			const svg = editor.toSVG();
@@ -64,8 +63,6 @@
 			maxZoom: 1
 		});
 
-		editor.getRootElement().style.height = `${innerHeight.current}px`;
-		editor.getRootElement().style.width = `${innerWidth.current}px`;
 		const height = dom.clientHeight;
 		const width = height / 2;
 		editor.getRootElement().style.height = `${height}px`;
@@ -87,12 +84,7 @@
 		const penTools = editor.toolController.getMatchingTools(PenTool);
 		penTools.forEach((pen) => {
 			pen.setColor(
-				Color4.fromString(
-					'#' +
-						Math.floor((Math.random() * 0xffffff) << 0)
-							.toString(16)
-							.padStart(6, '0')
-				)
+				Color4.fromHSV(Math.random() * 360, Math.random() * 0.3 + 0.7, Math.random() * 0.2 + 0.8)
 			);
 			pen.setThickness(Math.random() * 53 + 2);
 		});
@@ -103,28 +95,31 @@
 
 	onMount(() => {
 		init();
-		setInterval(() => {
+		const interval = setInterval(() => {
 			countdown = getCountDown();
 			if (countdown === 1) {
 				upload();
 			}
 		}, 1000);
+
+		return () => clearInterval(interval);
 	});
 </script>
 
-<div bind:this={dom} class="full-screen center-content bg-base-100">
-	<div class="pointer-events-none full-screen flex flex-col justify-between px-3 pb-6 text-8xl">
-		<div class="mt-3 flex w-full items-center justify-between *:pointer-events-auto">
-			<button class="text-4xl text-black" onclick={() => setLocale(anotherLocale)}>
-				{#if anotherLocale === 'en'}
-					En
-				{:else if anotherLocale === 'zh-tw'}
-					中
-				{/if}
-			</button>
-		</div>
-	</div>
-</div>
+<div bind:this={dom} class="full-screen center-content bg-white"></div>
+
+<button
+	class="fixed top-3 left-3 size-20 rounded-full bg-cyan-500 p-3 text-4xl text-black shadow-inner shadow-black/30"
+	onclick={() => {
+		if (confirm(m.switchLocaleConfirm())) setLocale(anotherLocale);
+	}}
+>
+	{#if anotherLocale === 'en'}
+		EN
+	{:else if anotherLocale === 'zh-tw'}
+		中
+	{/if}
+</button>
 
 <div class="fixed top-0 right-0 p-3 text-5xl font-bold text-black">
 	{countdown}
@@ -134,6 +129,6 @@
 	<img src={resultUrl} alt="" />
 {/if}
 
-<div class="fixed top-0 center-content w-screen">
+<!-- <div class="fixed top-0 center-content w-screen">
 	<button class="btn" onclick={upload}>click</button>
-</div>
+</div> -->
