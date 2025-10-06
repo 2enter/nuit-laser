@@ -10,7 +10,7 @@
 }*/
 
 div[role='toolbar'] {
-	@apply fixed bottom-0 gap-5 bg-transparent *:bg-transparent;
+	@apply fixed bottom-0 left-0 gap-5 bg-transparent *:bg-transparent;
 
 	.toolbar-action-row {
 		/*@apply justify-between px-2;*/

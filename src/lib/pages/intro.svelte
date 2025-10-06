@@ -31,8 +31,7 @@
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
 		formdata.append('png', pngFile);
-		const res = await fetch('/api/upload', { method: 'POST', body: formdata });
-		console.log(res);
+		await fetch('/api/upload', { method: 'POST', body: formdata });
 		window.location.reload();
 	}
 
@@ -41,13 +40,15 @@
 		if (editor.history.undoStackSize === 0) return;
 		{
 			const svg = editor.toSVG();
+			svg.setAttribute('width', '500');
+			svg.setAttribute('height', '1000');
 			const svgStr = svg.outerHTML;
 			const blob = new Blob([svgStr], { type: 'image/svg+xml' });
 			const file = new File([blob], 'image.svg', { type: 'image/svg+xml' });
 			svgFile = file;
 		}
 		{
-			const png = editor.toDataURL('image/png', Vec2.of(500, 1000));
+			const png = editor.toDataURL('image/png', Vec2.of(dom.clientHeight / 2, dom.clientHeight));
 			const blob = await fetch(png).then((res) => res.blob());
 			const file = new File([blob], 'image.png', { type: 'image/png' });
 			pngFile = file;
@@ -65,12 +66,16 @@
 
 		editor.getRootElement().style.height = `${innerHeight.current}px`;
 		editor.getRootElement().style.width = `${innerWidth.current}px`;
+		const height = dom.clientHeight;
+		const width = height / 2;
+		editor.getRootElement().style.height = `${height}px`;
+		editor.getRootElement().style.width = `${width}px`;
 
 		dom.addEventListener('touchend', () => updateResultUrl());
 
 		editor.dispatch(
 			editor.setBackgroundStyle({
-				color: Color4.white,
+				color: Color4.transparent,
 				autoresize: true,
 				type: 0
 			}),
@@ -107,7 +112,7 @@
 	});
 </script>
 
-<div bind:this={dom} class="full-screen bg-base-100">
+<div bind:this={dom} class="full-screen center-content bg-base-100">
 	<div class="pointer-events-none full-screen flex flex-col justify-between px-3 pb-6 text-8xl">
 		<div class="mt-3 flex w-full items-center justify-between *:pointer-events-auto">
 			<button class="text-4xl text-black" onclick={() => setLocale(anotherLocale)}>
@@ -128,3 +133,7 @@
 {#if resultUrl}
 	<img src={resultUrl} alt="" />
 {/if}
+
+<div class="fixed top-0 center-content w-screen">
+	<button class="btn" onclick={upload}>click</button>
+</div>
