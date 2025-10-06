@@ -42,7 +42,7 @@ div[role='toolbar'] {
 
 .toolbar-internalWidgetId--hand-tool-widget,
 .toolbar-internalWidgetId--insert-image-widget,
-/*.toolbar-internalWidgetId--selection-tool-widget,*/
+.toolbar-internalWidgetId--selection-tool-widget,
 .toolbar-internalWidgetId--text-tool-widget,
 .toolbar-internalWidgetId--document-properties-widget {
 	@apply hidden;
