@@ -10,7 +10,7 @@
 }*/
 
 div[role='toolbar'] {
-	@apply fixed bottom-0 left-0 gap-5 bg-transparent *:bg-transparent;
+	@apply fixed bottom-0 left-0 bg-transparent *:bg-transparent;
 
 	.toolbar-action-row {
 		/*@apply justify-between px-2;*/
@@ -18,12 +18,16 @@ div[role='toolbar'] {
 	}
 
 	.toolbar-tool-row {
-		@apply bg-primary py-4;
+		@apply gap-3 bg-primary py-4;
 	}
-}
 
-.toolbar-button {
-	@apply size-[14vw] p-1;
+	.toolbar-button {
+		@apply size-[18vw] p-1;
+	}
+
+	.toolbar-toolContainer.selected {
+		@apply rounded-xl bg-white;
+	}
 }
 
 .toolbar-edgemenu {
@@ -38,7 +42,7 @@ div[role='toolbar'] {
 
 .toolbar-internalWidgetId--hand-tool-widget,
 .toolbar-internalWidgetId--insert-image-widget,
-.toolbar-internalWidgetId--selection-tool-widget,
+/*.toolbar-internalWidgetId--selection-tool-widget,*/
 .toolbar-internalWidgetId--text-tool-widget,
 .toolbar-internalWidgetId--document-properties-widget {
 	@apply hidden;
