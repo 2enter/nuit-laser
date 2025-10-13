@@ -21,7 +21,7 @@ class ServerState {
 		this.currentDisplay = [0, 0, 0, 0];
 	}
 
-	addSVG(pos: number, id: number){
+	addSVG(pos: number, id: number) {
 		const file = loadSvgFile(`./uploads/${pos}/${id}.svg`);
 		const margin = (1 - SIZE * 2) / 3;
 		const svg = new Svg({
@@ -44,7 +44,6 @@ class ServerState {
 		this.addSVG(pos, id);
 		this.addSVG(anotherPos, anotherId);
 
-		console.log(this.scene.points.length);
 		// make the total point number under 2000
 		const pointAmount = this.scene.points.length;
 		if (pointAmount > 1000) {
@@ -53,6 +52,7 @@ class ServerState {
 			this.scene.points = this.scene.points.filter(() => Math.random() > removeRatio);
 		}
 
+		console.log(pointAmount, '-->', this.scene.points.length);
 		this.currentDisplay[pos] = id;
 		this.dac.stream(this.scene);
 	}
