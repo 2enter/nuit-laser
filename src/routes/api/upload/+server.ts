@@ -21,7 +21,7 @@ export const POST = async ({ request }) => {
 	const pngBuf = await png.arrayBuffer();
 
 	const svgStr = new TextDecoder().decode(svgBuf);
-	const processedSvg = fitSvgXmlToBox(optimizeSvgForLaserCube(svgStr), 500, 1000, 50);
+	const processedSvg = fitSvgXmlToBox(optimizeSvgForLaserCube(svgStr), 500, 1000, 100);
 
 	await fs.promises.writeFile(svgPath, Buffer.from(processedSvg));
 	await fs.promises.writeFile(pngPath, Buffer.from(pngBuf));
