@@ -16,6 +16,12 @@ export default defineConfig({
 		}),
 		mkcert()
 	],
+	ssr: {
+		external: ['@resvg/resvg-js']
+	},
+	optimizeDeps: {
+		exclude: ['@resvg/resvg-js']
+	},
 	server: {
 		host: '0.0.0.0',
 		https: {}
