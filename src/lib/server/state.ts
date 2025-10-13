@@ -1,14 +1,14 @@
 import { DAC } from '@laser-dac/core';
-import { loadSvgFile, Scene, Svg } from '@laser-dac/draw';
+import { loadSvgFile, Rect, Scene, Svg } from '@laser-dac/draw';
 import { LasercubeWifi } from '@laser-dac/lasercube-wifi';
 import fs from 'fs-extra';
 
 const PPS = 30000;
-const FPS = 5;
-const SIZE = 0.41;
+const FPS = 30;
+const SIZE = 0.35;
 const WAIT_AMOUNT = 20;
-const BLANK_AMOUNT = 2.5;
-const MAX_POINT = 1300;
+const BLANK_AMOUNT = 2;
+const MAX_POINT = 1000;
 
 class ServerState {
 	dac: DAC;
@@ -27,8 +27,8 @@ class ServerState {
 		const margin = (1 - SIZE * 2) / 3;
 		const svg = new Svg({
 			file,
-			x: pos % 2 !== 1 ? margin : SIZE + margin * 2,
-			y: 0,
+			x: pos % 2 !== 1 ? margin : SIZE + margin,
+			y: margin,
 			size: SIZE,
 			waitAmount: WAIT_AMOUNT,
 			blankingAmount: BLANK_AMOUNT
@@ -44,6 +44,15 @@ class ServerState {
 		this.scene.reset();
 		this.addSVG(pos, id);
 		this.addSVG(anotherPos, anotherId);
+		// this.scene.add(
+		// 	new Rect({
+		// 		width: 1,
+		// 		height: 1,
+		// 		x: 0,
+		// 		y: 0,
+		// 		color: [1, 1, 1]
+		// 	})
+		// );
 
 		// make the total point number under 2000
 		const pointAmount = this.scene.points.length;
