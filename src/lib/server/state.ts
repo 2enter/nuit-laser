@@ -4,8 +4,8 @@ import { LasercubeWifi } from '@laser-dac/lasercube-wifi';
 import fs from 'fs-extra';
 
 const PPS = 30000;
-const FPS = 10;
-const SIZE = 0.39;
+const FPS = 5;
+const SIZE = 0.41;
 const WAIT_AMOUNT = 20;
 const BLANK_AMOUNT = 2.5;
 
@@ -21,12 +21,12 @@ class ServerState {
 		this.currentDisplay = [0, 0, 0, 0];
 	}
 
-	addSVG(pos: number, id: number) {
+	addSVG(pos: number, id: number){
 		const file = loadSvgFile(`./uploads/${pos}/${id}.svg`);
-		const margin = (1 - SIZE * 2) / 2;
+		const margin = (1 - SIZE * 2) / 3;
 		const svg = new Svg({
 			file,
-			x: pos % 2 !== 1 ? margin : SIZE + margin,
+			x: pos % 2 !== 1 ? margin : SIZE + margin * 2,
 			y: 0,
 			size: SIZE,
 			waitAmount: WAIT_AMOUNT,
@@ -37,7 +37,7 @@ class ServerState {
 		this.scene.add(svg);
 	}
 
-	updateScene(pos: number, id: number) {
+	async updateScene(pos: number, id: number) {
 		const { pos: anotherPos, id: anotherId } = this.getAnotherPosAndId(pos);
 
 		this.scene.reset();
@@ -45,8 +45,16 @@ class ServerState {
 		this.addSVG(anotherPos, anotherId);
 
 		console.log(this.scene.points.length);
+		// make the total point number under 2000
+		const pointAmount = this.scene.points.length;
+		if (pointAmount > 1000) {
+			const toRemove = pointAmount - 1000;
+			const removeRatio = toRemove / pointAmount;
+			this.scene.points = this.scene.points.filter(() => Math.random() > removeRatio);
+		}
 
 		this.currentDisplay[pos] = id;
+		this.dac.stream(this.scene);
 	}
 
 	async initCurrentDisplayIds() {
