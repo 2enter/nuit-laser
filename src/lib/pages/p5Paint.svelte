@@ -37,7 +37,7 @@
 
 		p5.touchMoved = () => {
 			if (usedInk >= TOTAL_INK) return;
-			p5.stroke(hue, 255, 255);
+			p5.stroke(hue, 200, 130);
 			if (!!lastPos) {
 				const { mouseX, mouseY } = p5;
 				const dist = p5.dist(mouseX, mouseY, lastPos[0], lastPos[1]);
