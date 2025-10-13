@@ -65,7 +65,10 @@ class ServerState {
 		}
 		console.log(this.currentDisplay);
 		for (let i = 0; i < 1; i++) {
-			this.updateScene(i, this.currentDisplay[i]);
+			const toDisplay = this.currentDisplay[i];
+			if (toDisplay > 0) {
+				this.updateScene(i, toDisplay);
+			}
 		}
 	}
 
