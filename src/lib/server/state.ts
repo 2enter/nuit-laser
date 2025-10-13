@@ -8,6 +8,7 @@ const FPS = 5;
 const SIZE = 0.41;
 const WAIT_AMOUNT = 20;
 const BLANK_AMOUNT = 2.5;
+const MAX_POINT = 1300;
 
 class ServerState {
 	dac: DAC;
@@ -46,8 +47,8 @@ class ServerState {
 
 		// make the total point number under 2000
 		const pointAmount = this.scene.points.length;
-		if (pointAmount > 1000) {
-			const toRemove = pointAmount - 1000;
+		if (pointAmount > MAX_POINT) {
+			const toRemove = pointAmount - MAX_POINT;
 			const removeRatio = toRemove / pointAmount;
 			this.scene.points = this.scene.points.filter(() => Math.random() > removeRatio);
 		}
