@@ -4,16 +4,14 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Resvg, initWasm } from '@resvg/resvg-wasm';
-	// import wasmUrl from '@resvg/resvg-wasm/index_bg.wasm?url';
-	// import { sleep } from '@2enter/web-kit/runtime';
 
 	let svgFile: File;
 	let pngFile: File;
 
 	const initHueIndex = Math.floor(Math.random() * 5);
 	const HUES = [0, 80, 160, 240, 320] as const;
-	const TOTAL_INK = 2300;
-	const WEIGHT = 7;
+	const TOTAL_INK = 2200;
+	const WEIGHT = 8;
 
 	let hue = $state<(typeof HUES)[number]>(HUES[initHueIndex]);
 	let usedInk = $state(0);
@@ -40,8 +38,12 @@
 			p5.stroke(hue, 200, 130);
 			if (!!lastPos) {
 				const { mouseX, mouseY } = p5;
+				if (mouseX > p5.width || mouseX < 0 || mouseY > p5.height || mouseY < 0) {
+					lastPos = undefined;
+					return;
+				}
 				const dist = p5.dist(mouseX, mouseY, lastPos[0], lastPos[1]);
-				if (dist > 30) {
+				if (dist > 20) {
 					// const ink = dist * weight;
 					usedInk += dist;
 					p5.line(p5.mouseX, p5.mouseY, lastPos[0], lastPos[1]);
@@ -73,6 +75,7 @@
 
 		await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm'));
 		const png = new Resvg(str).render().asPng();
+		//@ts-ignore
 		const pngBlob = new Blob([png], { type: 'image/png' });
 		pngFile = new File([pngBlob], 'svg.png', { type: 'image/png' });
 	}
