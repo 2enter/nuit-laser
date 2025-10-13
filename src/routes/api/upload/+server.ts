@@ -3,6 +3,7 @@ import { json } from '@sveltejs/kit';
 import { fitSvgXmlToBox } from '@/server/svg';
 import { serverState } from '@/server/state';
 import { optimizeSvgForLaserCube } from '@/server/optimize.js';
+import { sleep } from '@2enter/web-kit/runtime';
 
 export const POST = async ({ request }) => {
 	console.log('receiving request');
@@ -25,7 +26,8 @@ export const POST = async ({ request }) => {
 	await fs.promises.writeFile(svgPath, Buffer.from(processedSvg));
 	await fs.promises.writeFile(pngPath, Buffer.from(pngBuf));
 
-	serverState.updateScene(pos, id);
+	await sleep(20);
+	await serverState.updateScene(pos, id);
 
 	console.log('upload finished');
 
