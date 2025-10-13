@@ -4,17 +4,18 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Resvg, initWasm } from '@resvg/resvg-wasm';
-	import wasmUrl from '@resvg/resvg-wasm/index_bg.wasm?url';
+	// import wasmUrl from '@resvg/resvg-wasm/index_bg.wasm?url';
 	// import { sleep } from '@2enter/web-kit/runtime';
 
 	let svgFile: File;
 	let pngFile: File;
 
+	const initHueIndex = Math.floor(Math.random() * 5);
 	const HUES = [0, 80, 160, 240, 320] as const;
 	const TOTAL_INK = 2300;
 	const WEIGHT = 7;
 
-	let hue = $state<(typeof HUES)[number]>(HUES[0]);
+	let hue = $state<(typeof HUES)[number]>(HUES[initHueIndex]);
 	let usedInk = $state(0);
 	let p5: P5 | undefined;
 
