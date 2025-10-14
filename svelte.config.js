@@ -12,7 +12,7 @@ const config = {
 			'@/*': './src/lib/*'
 		},
 		prerender: {
-			entries: ['/en', '/zh-tw']
+			entries: ['/en', '/zh-tw', '/config', '/init']
 		}
 	}
 };
