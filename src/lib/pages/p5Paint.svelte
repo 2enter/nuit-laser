@@ -8,7 +8,7 @@
 	import { getSysState } from '@/states';
 
 	const sysState = getSysState();
-	const WAIT_TIME = 6;
+	const WAIT_TIME = 30;
 
 	let svgFile: File;
 	let pngFile: File;
