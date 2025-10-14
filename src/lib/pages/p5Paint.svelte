@@ -12,6 +12,7 @@
 
 	let svgFile: File;
 	let pngFile: File;
+	let wasmReady = false;
 
 	const initHueIndex = Math.floor(Math.random() * 5);
 	const HUES = [0, 80, 160, 240, 320] as const;
@@ -80,20 +81,7 @@
 		};
 	};
 
-	function isIOS() {
-		return (
-			['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(
-				navigator.platform
-			) ||
-			// iPad on iOS 13 detection
-			(navigator.userAgent.includes('Mac') && 'ontouchend' in document)
-		);
-	}
 	async function genSubmitData() {
-		if (!isIOS) {
-			await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm'));
-		}
-
 		const el = document.querySelector('svg') as SVGSVGElement;
 		const str = new XMLSerializer().serializeToString(el);
 		const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
@@ -105,9 +93,16 @@
 		pngFile = new File([pngBlob], 'svg.png', { type: 'image/png' });
 	}
 
+	async function wasmSetup() {
+		if (wasmReady) return;
+		await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm'));
+		wasmReady = true;
+	}
+
 	async function upload() {
 		await genSubmitData();
 		if (!svgFile || sysState.processing) return;
+		await wasmSetup();
 		const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
