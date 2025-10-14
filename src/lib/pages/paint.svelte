@@ -2,7 +2,6 @@
 	import P5 from 'p5';
 	import init, { type p5SVG } from 'p5.js-svg';
 	import { onMount } from 'svelte';
-	import { page } from '$app/state';
 	import { fade } from 'svelte/transition';
 	import { Resvg, initWasm } from '@resvg/resvg-wasm';
 	import { RotateCcw, CircleQuestionMark, Send } from '@lucide/svelte';
@@ -16,6 +15,7 @@
 	let pngFile: File;
 	let wasmReady = false;
 	let p5: P5 | undefined;
+	let pos: string | undefined;
 
 	const initHueIndex = Math.floor(Math.random() * 5);
 	const HUES = [0, 80, 160, 240, 320] as const;
@@ -106,8 +106,12 @@
 	async function upload() {
 		await genSubmitData();
 		if (!svgFile || sysState.processing) return;
+		if (!pos) {
+			window.location.href = '/config';
+			return;
+		}
 		sysState.startProcess();
-		const pos = page.url.searchParams.get('pos') ?? '0';
+		// const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
 		formdata.append('png', pngFile);
@@ -146,6 +150,12 @@
 	}
 
 	onMount(() => {
+		pos = localStorage.getItem('pos');
+		if (!pos) {
+			window.location.href = '/config';
+			return;
+		}
+
 		p5 = new P5(sketch);
 		popTutor();
 		return () => {
