@@ -8,7 +8,7 @@ const FPS = 5;
 const SIZE = 0.35;
 const WAIT_AMOUNT = 20;
 const BLANK_AMOUNT = 2;
-const MAX_POINT = 1000;
+const MAX_POINT = 1250;
 
 class ServerState {
 	dac: DAC;
