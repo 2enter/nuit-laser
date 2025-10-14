@@ -1,160 +1,221 @@
 <script lang="ts">
-	import type { Locale } from '@/paraglide/runtime';
-	import 'js-draw/bundledStyles';
-	import { getLocale, locales, setLocale } from '@/paraglide/runtime';
-	import { sleep } from '@2enter/web-kit/runtime';
-	import { m } from '@/paraglide/messages';
-	import { Editor, Color4, PenTool, EraserTool, Vec2, EraserMode } from 'js-draw';
+	import P5 from 'p5';
+	import init, { type p5SVG } from 'p5.js-svg';
 	import { onMount } from 'svelte';
-	import { localizations } from '@/localization';
 	import { page } from '$app/state';
+	import { fade } from 'svelte/transition';
+	import { Resvg, initWasm } from '@resvg/resvg-wasm';
+	import { RotateCcw, CircleQuestionMark, Send } from '@lucide/svelte';
+	import { getSysState } from '@/states';
+	import { sleep } from '@2enter/web-kit/runtime';
 
-	const locale = getLocale();
-	const anotherLocale = locales.find((l) => l !== locale) as Locale;
-	const localization = localizations[locale];
+	const sysState = getSysState();
+	const WAIT_TIME = 10;
 
-	let editor = $state<Editor>();
-	let countdown = $state(getCountDown());
+	let svgFile: File;
+	let pngFile: File;
+	let wasmReady = false;
+	let p5: P5 | undefined;
 
-	let dom = $state<HTMLDivElement>();
+	const initHueIndex = Math.floor(Math.random() * 5);
+	const HUES = [0, 80, 160, 240, 320] as const;
+	const TOTAL_INK = 5000;
+	const WEIGHT = 8;
 
-	let svgFile = $state<File>();
-	let pngFile = $state<File>();
-	let resultImgUrl = $state<string>();
-	let timesup = $state(false);
+	let hue = $state<(typeof HUES)[number]>(HUES[initHueIndex]);
+	let usedInk = $state(0);
+	let countdown = $state(0);
 
-	function getCountDown() {
-		const now = new Date().getSeconds();
-		return 60 - now;
+	const inkRatio = $derived(usedInk / TOTAL_INK);
+	const timesup = $derived(countdown <= 0);
+
+	init(P5);
+
+	const sketch = (p5: p5SVG) => {
+		let lastPos: [number, number] | undefined = undefined;
+
+		p5.setup = () => {
+			const height = p5.windowHeight;
+			//@ts-ignore
+			p5.createCanvas(height / 2, height, p5.SVG).parent('main');
+			p5.colorMode(p5.HSB);
+			p5.strokeWeight(WEIGHT);
+			p5.noFill();
+		};
+
+		p5.touchMoved = () => {
+			if (usedInk >= TOTAL_INK && !timesup) {
+				sysState.popDialog('系統提示 System hint', '沒有墨水了！No ink remaining!');
+				return;
+			}
+			if (sysState.dialogMessage) return;
+			const { mouseX, mouseY } = p5;
+			p5.stroke(hue, 200, 130);
+			if (!!lastPos) {
+				if (mouseX > p5.width || mouseX < 0 || mouseY > p5.height || mouseY < 0) {
+					lastPos = undefined;
+					return;
+				}
+				const dist = p5.dist(mouseX, mouseY, lastPos[0], lastPos[1]);
+				if (dist > 20) {
+					// const ink = dist * weight;
+					usedInk += dist;
+					p5.line(mouseX, mouseY, lastPos[0], lastPos[1]);
+					lastPos = [mouseX, mouseY];
+				}
+			}
+			if (!lastPos) {
+				lastPos = [mouseX, mouseY];
+			}
+		};
+
+		p5.touchEnded = () => {
+			console.log('touched ended, used ink: ', usedInk);
+			lastPos = undefined;
+			if (sysState.dialogMessage) {
+				return;
+			}
+			let currentHueIndex = HUES.indexOf(hue);
+			if (currentHueIndex === -1) {
+				currentHueIndex = 0;
+			}
+			currentHueIndex = (currentHueIndex + 1) % HUES.length;
+			hue = HUES[currentHueIndex];
+		};
+	};
+
+	async function genSubmitData() {
+		await wasmSetup();
+		const el = document.querySelector('svg') as SVGSVGElement;
+		const str = new XMLSerializer().serializeToString(el);
+		const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
+		svgFile = new File([blob], 'svg.svg', { type: blob.type });
+
+		const png = new Resvg(str).render().asPng();
+		//@ts-ignore
+		const pngBlob = new Blob([png], { type: 'image/png' });
+		pngFile = new File([pngBlob], 'svg.png', { type: 'image/png' });
+	}
+
+	async function wasmSetup() {
+		if (wasmReady) return;
+		await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm'));
+		wasmReady = true;
 	}
 
 	async function upload() {
-		if (!editor) return;
 		await genSubmitData();
-		if (!svgFile || !pngFile) return;
-
-		timesup = true;
-
+		if (!svgFile || sysState.processing) return;
+		sysState.startProcess();
 		const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
 		formdata.append('png', pngFile);
 		formdata.append('pos', pos);
 		await fetch('/api/upload', { method: 'POST', body: formdata });
-		await sleep(2000);
-		window.location.reload();
+		await sleep(5000);
+		// sysState.endProcess();
 	}
 
-	async function genSubmitData() {
-		if (!editor || !dom) return;
-		if (editor.history.undoStackSize === 0) return;
-		{
-			const svg = editor.toSVG();
-			svg.setAttribute('width', '500');
-			svg.setAttribute('height', '1000');
-			const svgStr = svg.outerHTML;
-			const blob = new Blob([svgStr], { type: 'image/svg+xml' });
-			const file = new File([blob], 'image.svg', { type: 'image/svg+xml' });
-			svgFile = file;
-		}
-		{
-			resultImgUrl = editor.toDataURL('image/png', Vec2.of(dom.clientHeight / 2, dom.clientHeight));
-			const blob = await fetch(resultImgUrl).then((res) => res.blob());
-			const file = new File([blob], 'image.png', { type: 'image/png' });
-			pngFile = file;
-		}
-	}
-
-	function init() {
-		if (!dom) return;
-		editor = new Editor(dom, {
-			localization,
-			wheelEventsEnabled: false,
-			minZoom: 1,
-			maxZoom: 1
-		});
-
-		const height = dom.clientHeight;
-		const width = height / 2;
-		const rootEl = editor.getRootElement();
-		rootEl.style.height = `${height}px`;
-		rootEl.style.width = `${width}px`;
-		rootEl.addEventListener('touchstart', (ev) => {
-			if (ev.touches.length > 1) {
-				ev.preventDefault();
-				ev.stopPropagation();
-				return false;
+	function popTutor() {
+		sysState.popDialog(
+			'使用說明 Usage instructions',
+			`
+			左側工具欄的按鈕，由上往下分別是：<br />
+			The buttons on the left toolbar, from top to bottom, are:<br/>
+			使用說明、清空畫布、紅色、黃色、天藍、藍色、粉紅、剩餘墨水量。<br />
+			Usage instructions, Clear canvas, red, yellow, sky blue, blue, pink, remaining ink level.<br />
+			繪畫完成後，點擊右下角傳送鍵以傳送，或是待60秒後由系統自動上傳。<br />
+			After the drawing is completed, click the send button in the lower right corner to send it, or wait for 60 seconds for the system to automatically upload it.
+			`,
+			() => {
+				sysState.startTimer();
+				console.log('starting!');
+				countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
+				const timerInterval = setInterval(async () => {
+					countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
+					if (countdown <= 0) {
+						sysState.closeDialog();
+						await upload();
+						window.location.reload();
+						clearInterval(timerInterval);
+					}
+				}, 1000);
 			}
-			return true;
-		});
-
-		// dom.addEventListener('touchend', () => updateResultUrl());
-
-		editor.dispatch(
-			editor.setBackgroundStyle({
-				color: Color4.transparent,
-				autoresize: true,
-				type: 0
-			}),
-			false
 		);
-		editor.getCurrentSettings();
-		editor.addToolbar();
-
-		const penTools = editor.toolController.getMatchingTools(PenTool);
-		penTools.forEach((pen) => {
-			pen.setColor(
-				Color4.fromHSV(Math.random() * 360, Math.random() * 0.3 + 0.7, Math.random() * 0.2 + 0.8)
-			);
-			pen.setThickness(Math.random() * 53 + 2);
-		});
-
-		const eraserTools = editor.toolController.getMatchingTools(EraserTool);
-		eraserTools.forEach((eraser) => eraser.getModeValue().set(EraserMode.PartialStroke));
 	}
 
 	onMount(() => {
-		init();
-		const interval = setInterval(() => {
-			countdown = getCountDown();
-			if (countdown === 60) {
-				upload();
+		p5 = new P5(sketch);
+		popTutor();
+		return () => {
+			if (p5) {
+				p5.remove();
+				p5 = undefined;
 			}
-		}, 1000);
-
-		return () => clearInterval(interval);
+		};
 	});
 </script>
 
-<div bind:this={dom} class="full-screen center-content bg-white"></div>
-
-<button
-	class="fixed top-3 left-3 size-20 rounded-full bg-cyan-500 p-3 text-4xl text-black shadow-inner shadow-black/30"
-	onclick={() => {
-		if (confirm(m.switchLocaleConfirm())) setLocale(anotherLocale);
-	}}
->
-	{#if anotherLocale === 'en'}
-		EN
-	{:else if anotherLocale === 'zh-tw'}
-		中
-	{/if}
-</button>
+<div
+	class="full-screen center-content bg-cover bg-center bg-no-repeat *:bg-white/30 *:shadow-inner *:shadow-black/70 *:backdrop-blur-md"
+	class:pointer-events-none={countdown <= 0}
+	id="main"
+></div>
 
 <div
-	class:text-rose-600={countdown < 15}
-	class:animate-bounce={countdown < 8}
-	class="fixed top-0 right-0 p-4 text-5xl font-bold text-black"
+	class="fixed top-24 left-0 center-content flex-col gap-2 rounded-r-xl bg-white/60 px-2 py-2 pt-5 shadow-inner shadow-black/30 backdrop-blur-md"
 >
-	{countdown}
-</div>
+	<button class="mb-2" onclick={popTutor}><CircleQuestionMark size="56px" /></button>
+	<button
+		onclick={() => {
+			p5?.clear();
+			usedInk = 0;
+		}}
+		class="mb-3"
+	>
+		<RotateCcw size="56px" />
+	</button>
+	{#each HUES as i}
+		<label
+			class="size-14 rounded-full border-3 border-transparent shadow-inner transition-all duration-400
+			{hue === i ? 'shadow-black/70' : 'shadow-white/50'}"
+			style="background-color: hsl({i}, 100%, 60%)"
+		>
+			<input type="radio" name="hues" bind:group={hue} value={i} hidden />
+		</label>
+	{/each}
 
-<div class="fixed top-0 center-content w-screen">
-	<button class="btn" onclick={upload}>click</button>
-</div>
-
-{#if timesup}
-	<div class="full-screen center-content text-5xl text-white backdrop-blur-sm">
-		{m.timesup()}
+	<div
+		class="mt-3 flex h-32 w-20 flex-col justify-between rounded-b-xl bg-black/10 shadow-inner shadow-black/30 *:rounded-b-xl"
+	>
+		<div class="bg-white/30" style:height="{inkRatio * 100}%"></div>
+		<div
+			style:background-color="hsla({hue}, 100%, 60%, 0.7)"
+			style:height="{(1 - inkRatio) * 100}%"
+			class:invisible={usedInk >= TOTAL_INK}
+			class="shadow-inner shadow-white/80 transition-all duration-500"
+		></div>
 	</div>
+</div>
+
+<div class="fixed top-0 z-[1000] w-screen bg-black py-1 text-center text-2xl font-bold text-white">
+	{#if countdown >= 0 && !sysState.processing}
+		剩餘時間：{countdown} seconds remaining
+	{:else}
+		繪畫上傳中~The image is uploading~
+	{/if}
+</div>
+
+{#if usedInk > 0 && !sysState.processing && countdown >= 0}
+	<button
+		class="fixed right-3 bottom-3 center-content size-24 rounded-full bg-white/30 p-3 shadow-inner shadow-black/40 backdrop-blur-md"
+		onclick={upload}
+	>
+		<Send size="50px" />
+	</button>
+{/if}
+
+{#if sysState.processing}
+	<div in:fade class="full-screen bg-white/80"></div>
 {/if}

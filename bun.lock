@@ -32,7 +32,6 @@
         "daisyui": "^5.1.10",
         "eruda": "^3.4.3",
         "fs-extra": "^11.3.2",
-        "js-draw": "^1.31.1",
         "p5": "^1.11.10",
         "p5.js-svg": "^1.6.0",
         "prettier": "^3.4.2",
@@ -171,8 +170,6 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@js-draw/math": ["@js-draw/math@1.31.1", "", { "dependencies": { "bezier-js": "6.1.3" } }, "sha512-ZVWfPY0VDQ+d25mu4PWGK8fVRfYRj0IgUfDhame4Lt2Y1+HbbDmcYoL8nCaD/4q4X3644MHNJW6E7IRfSrdNtg=="],
-
     "@laser-dac/core": ["@laser-dac/core@0.4.2", "", {}, "sha512-nbXYtYhLU8fvSd1QX2ovx3dzgZv8axyvUhyqtfimvPrcfVFFwckKQfCi09Vjav9G9ANvrLXQxRNwOeJX1fGgag=="],
 
     "@laser-dac/draw": ["@laser-dac/draw@0.6.1", "", { "dependencies": { "@laser-dac/ilda-reader": "^0.3.3", "@types/bezier-js": "^0.0.8", "@types/svg-parser": "^1.0.0", "bezier-js": "^2.2.15", "change-perspective": "^1.0.0", "svg-arc-to-cubic-bezier": "^3.1.2", "svg-parser": "^1.0.5", "svg-pathdata": "^5.0.2" } }, "sha512-5CMQnL91E/cOFnugU3+adGICXgx1HtQIdA3STNRSQ7AmL0930ckf+L8KsLZdVnmFeuBizzCD0Q2QXOCuW+yo/g=="],
@@ -186,8 +183,6 @@
     "@lix-js/server-protocol-schema": ["@lix-js/server-protocol-schema@0.1.1", "", {}, "sha512-jBeALB6prAbtr5q4vTuxnRZZv1M2rKe8iNqRQhFJ4Tv7150unEa0vKyz0hs8Gl3fUGsWaNJBh3J8++fpbrpRBQ=="],
 
     "@lucide/svelte": ["@lucide/svelte@0.545.0", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-RlAtWefx9MdpXaOMbx3Qv3/NqpeZKOIPxN2D0RBN2+op0opKly8VgYEEWZTT6Ow/zf7UwyTg6/0ExJlsVLK+8g=="],
-
-    "@melloware/coloris": ["@melloware/coloris@0.22.0", "", {}, "sha512-i06nJM0xQrgOkLFUi8d+8mrJjvFgPrU/nTM9vtRGip/T6yHUFIrNV7QgCyps3dBkKVRP/CeJzAeAIvJBSTSbFQ=="],
 
     "@polka/url": ["@polka/url@1.0.0-next.29", "", {}, "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="],
 
@@ -523,8 +518,6 @@
 
     "jiti": ["jiti@2.5.1", "", { "bin": { "jiti": "lib/jiti-cli.mjs" } }, "sha512-twQoecYPiVA5K/h6SxtORw/Bs3ar+mLUtoPSc7iMXzQzK8d7eJ/R09wmTwAjiamETn1cXYPGfNnu7DMoHgu12w=="],
 
-    "js-draw": ["js-draw@1.31.1", "", { "dependencies": { "@js-draw/math": "^1.31.1", "@melloware/coloris": "0.22.0" } }, "sha512-1dun70ZfeAGBhu3avN6z6kH+F3DsnVyCi7nykaHedJz3YrOVx8vhrvvNrSHa4s4AmTXS8vUMKfGbPOE//XB1zw=="],
-
     "js-sha256": ["js-sha256@0.11.1", "", {}, "sha512-o6WSo/LUvY2uC4j7mO50a2ms7E/EAdbP0swigLV+nzHKTTaYnaLIWJ02VdXrsJX0vGedDESQnLsOekr94ryfjg=="],
 
     "json5": ["json5@2.2.3", "", { "bin": { "json5": "lib/cli.js" } }, "sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg=="],
@@ -766,8 +759,6 @@
     "yallist": ["yallist@5.0.0", "", {}, "sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw=="],
 
     "zimmerframe": ["zimmerframe@1.1.4", "", {}, "sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ=="],
-
-    "@js-draw/math/bezier-js": ["bezier-js@6.1.3", "", {}, "sha512-VPFvkyO98oCJ1Tsi+bFBrKEWLdefAj4DJVaWp3xTEsdCbunC7Pt/nTeIgu/UdskBNcmHv8TOfsgdMZb1GsICmg=="],
 
     "@rollup/plugin-commonjs/is-reference": ["is-reference@1.2.1", "", { "dependencies": { "@types/estree": "*" } }, "sha512-U82MsXXiFIrjCK4otLT+o2NA2Cd2g5MLoOVXUZjIOhLurrRxpEXzI8O0KZHr3IjLvlAH1kTPYSuqer5T9ZVBKQ=="],
 
