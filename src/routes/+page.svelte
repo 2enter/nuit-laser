@@ -29,7 +29,7 @@
 <div
 	in:fade={{ duration: 700 }}
 	class="full-screen center-content overflow-hidden bg-cover bg-center bg-no-repeat"
-	style:background-image="url(/bg.png)"
+	style:background-image="url(/{sysState.pageNum === 0 ? 'bg-with-text' : 'bg'}.webp)"
 >
 	<Page />
 </div>
