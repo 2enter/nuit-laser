@@ -1,6 +1,7 @@
 node_modules
 uploads
 cert/
+*.pem
 
 # Output
 .output
