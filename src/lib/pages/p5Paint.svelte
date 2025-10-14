@@ -16,7 +16,7 @@
 
 	const initHueIndex = Math.floor(Math.random() * 5);
 	const HUES = [0, 80, 160, 240, 320] as const;
-	const TOTAL_INK = 2200;
+	const TOTAL_INK = 5000;
 	const WEIGHT = 8;
 
 	let hue = $state<(typeof HUES)[number]>(HUES[initHueIndex]);
