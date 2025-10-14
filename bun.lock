@@ -26,7 +26,6 @@
         "@types/p5": "^1.7.6",
         "@types/sharp": "^0.32.0",
         "@types/svg-path-bounds": "^1.0.2",
-        "@types/svg2png": "^4.1.5",
         "axios": "^1.12.0",
         "cheerio": "^1.1.2",
         "daisyui": "^5.1.10",
@@ -311,8 +310,6 @@
     "@types/svg-parser": ["@types/svg-parser@1.0.0", "", {}, "sha512-+EI+Ugqg9T0yvcbNQ3ZdOvK7tVThokK8SdZ/DUo17gNn20GkvlRA0id23xEZ/SHcJzvDARXjsekEu9atc47enA=="],
 
     "@types/svg-path-bounds": ["@types/svg-path-bounds@1.0.2", "", {}, "sha512-DO/2oua0P9mY1CuCfzWzvTWK8pWTg9ltzBA15ql1y+ts3qCdGhmw3K6v9/WyhhZ1ynnSBAcltM+3EqLmOgQ4OQ=="],
-
-    "@types/svg2png": ["@types/svg2png@4.1.5", "", { "dependencies": { "@types/node": "*" } }, "sha512-Dxqpt9o1aemjF50g362xIyASCbe3YRqfOeEgxG0MmzUFMaZLXtQ5jadwbSUvcu53d69ICHxpsjl6uhU+aXOBeQ=="],
 
     "abs-svg-path": ["abs-svg-path@0.1.1", "", {}, "sha512-d8XPSGjfyzlXC3Xx891DJRyZfqk5JU0BJrDQcsWomFIV1/BIzPW5HDH5iDdWpqWaav0YVIEzT1RHTwWr0FFshA=="],
 
