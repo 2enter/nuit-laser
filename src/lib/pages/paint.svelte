@@ -45,10 +45,13 @@
 
 		p5.touchMoved = () => {
 			if (usedInk >= TOTAL_INK && !timesup) {
-				sysState.popDialog('系統提示 System hint', '沒有墨水了！No ink remaining!');
+				sysState.dialog.pop({
+					header: '系統提示 System hint',
+					message: '沒有墨水了！No ink remaining!'
+				});
 				return;
 			}
-			if (sysState.dialogMessage) return;
+			if (sysState.dialog.opened) return;
 			const { mouseX, mouseY } = p5;
 			p5.stroke(hue, 200, 130);
 			if (!!lastPos) {
@@ -72,7 +75,7 @@
 		p5.touchEnded = () => {
 			console.log('touched ended, used ink: ', usedInk);
 			lastPos = undefined;
-			if (sysState.dialogMessage) {
+			if (sysState.dialog.opened) {
 				return;
 			}
 			let currentHueIndex = HUES.indexOf(hue);
@@ -104,57 +107,66 @@
 	}
 
 	async function upload() {
-		await genSubmitData();
-		if (!svgFile || sysState.processing) return;
 		if (!pos) {
 			window.location.href = '/config';
 			return;
 		}
+
+		if (sysState.processing) return;
 		sysState.startProcess();
+
+		sysState.dialog.close();
+
+		await genSubmitData();
+		if (!svgFile) return;
+
 		// const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
 		formdata.append('png', pngFile);
 		formdata.append('pos', pos);
+
 		await fetch('/api/upload', { method: 'POST', body: formdata });
-		await sleep(5000);
+		await sleep(3000);
+
+		window.location.reload();
 		// sysState.endProcess();
 	}
 
 	function popTutor() {
-		sysState.popDialog(
-			'使用說明 Usage instructions',
-			`
-			左側工具欄的按鈕，由上往下分別是：<br />
-			The buttons on the left toolbar, from top to bottom, are:<br/>
-			使用說明、清空畫布、紅色、黃色、天藍、藍色、粉紅、剩餘墨水量。<br />
-			Usage instructions, Clear canvas, red, yellow, sky blue, blue, pink, remaining ink level.<br />
-			繪畫完成後，點擊右下角傳送鍵以傳送，或是待60秒後由系統自動上傳。<br />
-			After the drawing is completed, click the send button in the lower right corner to send it, or wait for 60 seconds for the system to automatically upload it.
-			`,
-			() => {
+		sysState.dialog.pop({
+			message: `
+				左側工具欄的按鈕，由上往下分別是：<br />
+				The buttons on the left toolbar, from top to bottom, are:<br/>
+				使用說明、清空畫布、紅色、黃色、天藍、藍色、粉紅、剩餘墨水量。<br />
+				Usage instructions, Clear canvas, red, yellow, sky blue, blue, pink, remaining ink level.<br />
+				繪畫完成後，點擊右下角傳送鍵以傳送，或是待60秒後由系統自動上傳。<br />
+				After the drawing is completed, click the send button in the lower right corner to send it, or wait for 60 seconds for the system to automatically upload it.
+				`,
+			header: '使用說明 Usage instructions',
+			closeBtnText: '開始繪畫 Start painting',
+			onclose: () => {
 				sysState.startTimer();
 				console.log('starting!');
 				countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
 				const timerInterval = setInterval(async () => {
 					countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
 					if (countdown <= 0) {
-						sysState.closeDialog();
-						await upload();
-						window.location.reload();
 						clearInterval(timerInterval);
+						await upload();
 					}
 				}, 1000);
 			}
-		);
+		});
 	}
 
 	onMount(() => {
-		pos = localStorage.getItem('pos');
-		if (!pos) {
+		const posInStorage = localStorage.getItem('pos');
+		if (!posInStorage) {
 			window.location.href = '/config';
 			return;
 		}
+		pos = posInStorage;
 
 		p5 = new P5(sketch);
 		popTutor();

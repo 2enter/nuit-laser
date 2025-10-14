@@ -15,13 +15,15 @@
 
 {@render children?.()}
 
-<dialog bind:this={sysState.dialog} class="modal modal-middle">
+<dialog bind:this={sysState.dialog.dom} class="modal modal-middle">
 	<div class="modal-box">
-		<h1 class="text-2xl font-bold">{sysState.dialogHeader}</h1>
-		<p>{@html sysState.dialogMessage}</p>
+		<h1 class="text-2xl font-bold">{sysState.dialog.header}</h1>
+		<p>{@html sysState.dialog.message}</p>
 		<div class="modal-action">
 			<form method="dialog">
-				<button class="btn btn-secondary" onclick={sysState.closeDialog}>關閉 Close</button>
+				<button class="btn btn-secondary" onclick={sysState.dialog.close}>
+					{sysState.dialog.closeBtnText}
+				</button>
 			</form>
 		</div>
 	</div>
