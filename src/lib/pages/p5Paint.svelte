@@ -96,16 +96,12 @@
 	async function upload() {
 		await genSubmitData();
 		if (!svgFile || sysState.processing) return;
-		sysState.startProcess();
-
 		const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
 		formdata.append('png', pngFile);
 		formdata.append('pos', pos);
 		await fetch('/api/upload', { method: 'POST', body: formdata });
-
-		sysState.endProcess();
 	}
 
 	function popTutor() {
@@ -128,7 +124,9 @@
 		const timerInterval = setInterval(() => {
 			countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
 			if (countdown <= 0) {
+				sysState.startProcess();
 				upload();
+				sysState.endProcess();
 				window.location.reload();
 			}
 		});
