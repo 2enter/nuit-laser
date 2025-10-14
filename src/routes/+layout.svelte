@@ -31,3 +31,7 @@
 		<a href={localizeHref(page.url.pathname, { locale })}>{locale}</a>
 	{/each}
 </div>
+
+<svelte:head>
+	<link rel="icon" href={favicon} />
+</svelte:head>
