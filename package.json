@@ -19,6 +19,7 @@
 		"@laser-dac/core": "^0.4.2",
 		"@laser-dac/draw": "^0.6.1",
 		"@laser-dac/lasercube-wifi": "^0.5.9",
+		"@lucide/svelte": "^0.545.0",
 		"@resvg/resvg-wasm": "^2.6.2",
 		"@sveltejs/adapter-node": "^5.3.3",
 		"@sveltejs/kit": "^2.22.0",

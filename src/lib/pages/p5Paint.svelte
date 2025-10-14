@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Resvg, initWasm } from '@resvg/resvg-wasm';
+	import { RotateCcw } from '@lucide/svelte';
 
 	let svgFile: File;
 	let pngFile: File;
@@ -132,11 +133,11 @@
 			usedInk = 0;
 		}}
 	>
-		reset
+		<RotateCcw size="56px" />
 	</button>
 	{#each HUES as i}
 		<label
-			class="size-16 rounded-full border-3 border-transparent shadow-inner shadow-white/40"
+			class="size-14 rounded-full border-3 border-transparent shadow-inner shadow-white/40"
 			style="background-color: hsl({i}, 100%, 60%)"
 			class:border-white={hue === i}
 		>
