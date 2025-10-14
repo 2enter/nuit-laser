@@ -14,6 +14,7 @@
 	let svgFile: File;
 	let pngFile: File;
 	let wasmReady = false;
+	let rainbowMode = $state(false);
 	let p5: P5 | undefined;
 	let pos: string | undefined;
 
@@ -62,6 +63,7 @@
 				const dist = p5.dist(mouseX, mouseY, lastPos[0], lastPos[1]);
 				if (dist > 20) {
 					// const ink = dist * weight;
+					if (rainbowMode) nextHue();
 					usedInk += dist;
 					p5.line(mouseX, mouseY, lastPos[0], lastPos[1]);
 					lastPos = [mouseX, mouseY];
@@ -78,14 +80,18 @@
 			if (sysState.dialog.opened) {
 				return;
 			}
-			let currentHueIndex = HUES.indexOf(hue);
-			if (currentHueIndex === -1) {
-				currentHueIndex = 0;
-			}
-			currentHueIndex = (currentHueIndex + 1) % HUES.length;
-			hue = HUES[currentHueIndex];
+			nextHue();
 		};
 	};
+
+	function nextHue() {
+		let currentHueIndex = HUES.indexOf(hue);
+		if (currentHueIndex === -1) {
+			currentHueIndex = 0;
+		}
+		currentHueIndex = (currentHueIndex + 1) % HUES.length;
+		hue = HUES[currentHueIndex];
+	}
 
 	async function genSubmitData() {
 		await wasmSetup();
@@ -138,8 +144,8 @@
 			message: `
 				左側工具欄的按鈕，由上往下分別是：<br />
 				The buttons on the left toolbar, from top to bottom, are:<br/>
-				使用說明、清空畫布、紅色、黃色、天藍、藍色、粉紅、剩餘墨水量。<br />
-				Usage instructions, Clear canvas, red, yellow, sky blue, blue, pink, remaining ink level.<br />
+				使用說明、清空畫布、紅色、黃色、天藍、藍色、粉紅、彩虹模式、剩餘墨水量。<br />
+				Usage instructions, Clear canvas, red, yellow, sky blue, blue, pink, rainbow mode, remaining ink level.<br />
 				繪畫完成後，點擊右下角傳送鍵以傳送，或是待60秒後由系統自動上傳。<br />
 				After the drawing is completed, click the send button in the lower right corner to send it, or wait for 60 seconds for the system to automatically upload it.
 				`,
@@ -203,10 +209,19 @@
 			class="size-14 rounded-full border-3 border-transparent shadow-inner transition-all duration-400
 			{hue === i ? 'shadow-black/70' : 'shadow-white/50'}"
 			style="background-color: hsl({i}, 100%, 60%)"
+			onclick={() => (rainbowMode = false)}
 		>
 			<input type="radio" name="hues" bind:group={hue} value={i} hidden />
 		</label>
 	{/each}
+	<label
+		class="size-14 rounded-full border-4"
+		class:border-black={rainbowMode}
+		class:border-transparent={!rainbowMode}
+		style:background-image="url(/rainbow.webp)"
+	>
+		<input type="checkbox" bind:checked={rainbowMode} hidden />
+	</label>
 
 	<div
 		class="mt-3 flex h-32 w-20 flex-col justify-between rounded-b-xl bg-black/10 shadow-inner shadow-black/30 *:rounded-b-xl"
