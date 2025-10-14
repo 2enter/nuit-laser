@@ -11,3 +11,8 @@
 	<br />
 	Start
 </button>
+
+<div
+	class="fixed bottom-0 left-0 size-3"
+	ondblclick={() => (window.location.href = '/config')}
+></div>
