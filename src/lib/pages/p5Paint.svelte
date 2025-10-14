@@ -82,6 +82,7 @@
 	};
 
 	async function genSubmitData() {
+		await wasmSetup();
 		const el = document.querySelector('svg') as SVGSVGElement;
 		const str = new XMLSerializer().serializeToString(el);
 		const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
@@ -102,7 +103,6 @@
 	async function upload() {
 		await genSubmitData();
 		if (!svgFile || sysState.processing) return;
-		await wasmSetup();
 		const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
 		formdata.append('svg', svgFile);
@@ -120,7 +120,17 @@
 			`,
 			() => {
 				sysState.startTimer();
-				console.log('starting timer');
+				console.log('starting!');
+				const timerInterval = setInterval(() => {
+					countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
+					if (countdown <= 0) {
+						sysState.startProcess();
+						upload();
+						sysState.endProcess();
+						clearInterval(timerInterval);
+						// window.location.reload();
+					}
+				}, 1000);
 			}
 		);
 	}
@@ -128,21 +138,11 @@
 	onMount(() => {
 		p5 = new P5(sketch);
 		popTutor();
-		const timerInterval = setInterval(() => {
-			countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
-			if (countdown <= 0) {
-				sysState.startProcess();
-				upload();
-				sysState.endProcess();
-				window.location.reload();
-			}
-		}, 1000);
 		return () => {
 			if (p5) {
 				p5.remove();
 				p5 = undefined;
 			}
-			clearInterval(timerInterval);
 		};
 	});
 </script>
