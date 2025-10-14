@@ -56,8 +56,8 @@
 				if (dist > 20) {
 					// const ink = dist * weight;
 					usedInk += dist;
-					p5.line(p5.mouseX, p5.mouseY, lastPos[0], lastPos[1]);
-					lastPos = [p5.mouseX, p5.mouseY];
+					p5.line(mouseX, mouseY, lastPos[0], lastPos[1]);
+					lastPos = [mouseX, mouseY];
 				}
 			}
 			if (!lastPos) {
