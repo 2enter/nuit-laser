@@ -4,7 +4,7 @@ import { LasercubeWifi } from '@laser-dac/lasercube-wifi';
 import fs from 'fs-extra';
 
 const PPS = 30000;
-const FPS = 30;
+const FPS = 5;
 const SIZE = 0.35;
 const WAIT_AMOUNT = 20;
 const BLANK_AMOUNT = 2;
