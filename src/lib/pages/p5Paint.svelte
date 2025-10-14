@@ -129,7 +129,7 @@
 				sysState.endProcess();
 				window.location.reload();
 			}
-		});
+		}, 1000);
 		return () => {
 			if (p5) {
 				p5.remove();
