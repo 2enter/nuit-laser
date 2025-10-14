@@ -35,7 +35,9 @@
 		};
 
 		p5.touchMoved = () => {
-			if (usedInk >= TOTAL_INK) return;
+			if (usedInk >= TOTAL_INK) {
+				return;
+			}
 			p5.stroke(hue, 200, 130);
 			if (!!lastPos) {
 				const { mouseX, mouseY } = p5;
@@ -114,19 +116,6 @@
 ></div>
 
 <div class="fixed top-20 left-3 center-content flex-col gap-2">
-	<!-- {#each { length: MAX_WEIGHT } as _, i}
-		{@const size = 4 + i}
-		{@const displaySize = size * 10}
-		<label
-			class="center-content rounded-full bg-white shadow-inner shadow-black/60"
-			style="width: {displaySize}px; height: {displaySize}px;"
-		>
-			{#if size === weight}
-				<div class="rounded-full bg-black" style="width: {size}px; height: {size}px;"></div>
-			{/if}
-			<input type="radio" name="weights" bind:group={weight} value={size} hidden />
-		</label>
-	{/each} -->
 	<button
 		onclick={() => {
 			p5?.clear();
