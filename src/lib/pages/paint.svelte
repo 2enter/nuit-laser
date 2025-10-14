@@ -9,7 +9,7 @@
 	import { sleep } from '@2enter/web-kit/runtime';
 
 	const sysState = getSysState();
-	const WAIT_TIME = 10;
+	const WAIT_TIME = 60;
 
 	let svgFile: File;
 	let pngFile: File;
