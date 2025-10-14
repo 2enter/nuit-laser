@@ -1,11 +1,13 @@
 import { getContext, setContext } from 'svelte';
 import { MAX_PAGE_NUM } from '@/pages';
 
+class Dialog {}
+
 class SysState {
 	processing = $state(false);
 	pageNum = $state<number>(0);
-	dialog = $state<HTMLDialogElement>();
 	startTime = $state<number>();
+	dialog = $state<HTMLDialogElement>();
 	dialogMessage = $state<string | null>(null);
 	dialogHeader = $state<string | null>(null);
 	onDialogClose = () => {};
