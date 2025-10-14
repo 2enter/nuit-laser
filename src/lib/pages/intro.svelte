@@ -5,7 +5,7 @@
 
 <button
 	onclick={sysState.navigate}
-	class="size-48 rounded-full p-1 text-4xl font-bold text-black/70 shadow-inner shadow-white/80 backdrop-blur-xl"
+	class="size-48 rounded-full p-1 text-4xl font-bold text-black/70 shadow-inner shadow-white/80 backdrop-blur-[4px]"
 >
 	開始
 	<br />
