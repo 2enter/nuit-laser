@@ -5,6 +5,7 @@
 	import { locales, localizeHref } from '@/paraglide/runtime';
 	import { setInputState, setSysState } from '@/states';
 	import { page } from '$app/state';
+	import { X } from '@lucide/svelte';
 
 	let { children } = $props();
 
@@ -16,11 +17,11 @@
 
 <dialog bind:this={sysState.dialog} class="modal modal-middle">
 	<div class="modal-box">
-		<h1>{m.error()}</h1>
-		<p>{sysState.errorMessage}</p>
+		<h1 class="text-2xl font-bold">{sysState.dialogHeader}</h1>
+		<p>{@html sysState.dialogMessage}</p>
 		<div class="modal-action">
 			<form method="dialog">
-				<button class="btn btn-secondary" onclick={sysState.closeError}> Close</button>
+				<button class="btn btn-secondary" onclick={sysState.closeDialog}>關閉 Close</button>
 			</form>
 		</div>
 	</div>

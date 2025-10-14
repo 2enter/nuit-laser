@@ -4,7 +4,11 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Resvg, initWasm } from '@resvg/resvg-wasm';
-	import { RotateCcw } from '@lucide/svelte';
+	import { RotateCcw, CircleQuestionMark } from '@lucide/svelte';
+	import { getSysState } from '@/states';
+
+	const sysState = getSysState();
+	const WAIT_TIME = 6;
 
 	let svgFile: File;
 	let pngFile: File;
@@ -19,6 +23,7 @@
 	let p5: P5 | undefined;
 
 	const inkRatio = $derived(usedInk / TOTAL_INK);
+	let countdown = $state(0);
 
 	init(P5);
 
@@ -36,8 +41,10 @@
 
 		p5.touchMoved = () => {
 			if (usedInk >= TOTAL_INK) {
+				sysState.popDialog('系統提示 System hint', '沒有墨水了！No ink remaining!');
 				return;
 			}
+			if (sysState.dialogMessage) return;
 			p5.stroke(hue, 200, 130);
 			if (!!lastPos) {
 				const { mouseX, mouseY } = p5;
@@ -61,6 +68,9 @@
 		p5.touchEnded = () => {
 			console.log('touched ended, used ink: ', usedInk);
 			lastPos = undefined;
+			if (sysState.dialogMessage) {
+				return;
+			}
 			let currentHueIndex = HUES.indexOf(hue);
 			if (currentHueIndex === -1) {
 				currentHueIndex = 0;
@@ -85,9 +95,8 @@
 
 	async function upload() {
 		await genSubmitData();
-		if (!svgFile) return;
-
-		// timesup = true;
+		if (!svgFile || sysState.processing) return;
+		sysState.startProcess();
 
 		const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
@@ -95,53 +104,90 @@
 		formdata.append('png', pngFile);
 		formdata.append('pos', pos);
 		await fetch('/api/upload', { method: 'POST', body: formdata });
+
+		sysState.endProcess();
 		window.location.reload();
+	}
+
+	function popTutor() {
+		sysState.popDialog(
+			'使用說明 Usage instructions',
+			`
+			左側工具欄的按鈕，由上往下分別是：<br/>使用說明、清空畫布、紅色、黃色、天藍、藍色、粉紅、剩餘墨水量<br />
+			The buttons on the left toolbar, from top to bottom, are:<br/>Usage instructions, Clear canvas, red, yellow, sky blue, blue, pink, remaining ink level.
+			`,
+			() => {
+				sysState.startTimer();
+				console.log('starting timer');
+			}
+		);
 	}
 
 	onMount(() => {
 		p5 = new P5(sketch);
+		popTutor();
+		const timerInterval = setInterval(() => {
+			countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
+			if (countdown <= 0) {
+				upload();
+			}
+		});
 		return () => {
 			if (p5) {
 				p5.remove();
 				p5 = undefined;
 			}
+			clearInterval(timerInterval);
 		};
 	});
 </script>
 
 <div
-	class="full-screen center-content bg-cover bg-center bg-no-repeat *:bg-white/40 *:shadow-inner *:shadow-black/70 *:backdrop-blur-sm"
+	class="full-screen center-content bg-cover bg-center bg-no-repeat *:bg-white/30 *:shadow-inner *:shadow-black/70 *:backdrop-blur-md"
+	class:pointer-events-none={sysState.processing}
 	id="main"
-	style:background-image="url(/bg.png)"
 ></div>
 
-<div class="fixed top-20 left-3 center-content flex-col gap-2">
+<div
+	class="fixed top-24 left-0 center-content flex-col gap-2 rounded-r-xl bg-white/60 px-2 py-2 pt-5 shadow-inner shadow-black/30 backdrop-blur-md"
+>
+	<button class="mb-2" onclick={popTutor}><CircleQuestionMark size="56px" /></button>
 	<button
 		onclick={() => {
 			p5?.clear();
 			usedInk = 0;
 		}}
+		class="mb-3"
 	>
 		<RotateCcw size="56px" />
 	</button>
 	{#each HUES as i}
 		<label
-			class="size-14 rounded-full border-3 border-transparent shadow-inner shadow-white/40"
+			class="size-14 rounded-full border-3 border-transparent shadow-inner transition-all duration-400
+			{hue === i ? 'shadow-black/70' : 'shadow-white/50'}"
 			style="background-color: hsl({i}, 100%, 60%)"
-			class:border-white={hue === i}
 		>
 			<input type="radio" name="hues" bind:group={hue} value={i} hidden />
 		</label>
 	{/each}
 
-	<div class="flex h-32 w-20 flex-col justify-between rounded-b-xl">
+	<div
+		class="mt-3 flex h-32 w-20 flex-col justify-between rounded-b-xl bg-black/10 shadow-inner shadow-black/30 *:rounded-b-xl"
+	>
 		<div class="bg-white/30" style:height="{inkRatio * 100}%"></div>
 		<div
-			style:background-color="hsla({hue}, 100%, 60%, 0.6)"
+			style:background-color="hsla({hue}, 100%, 60%, 0.7)"
 			style:height="{(1 - inkRatio) * 100}%"
-			class="rounded-b-xl shadow-inner shadow-white/80 backdrop-blur-[3px] transition-all duration-500"
+			class:invisible={usedInk >= TOTAL_INK}
+			class="shadow-inner shadow-white/80 transition-all duration-500"
 		></div>
 	</div>
 </div>
 
-<button class="btn fixed bottom-0 left-50" onclick={upload}>submit</button>
+<div class="fixed top-0 w-screen bg-black py-1 text-center text-2xl font-bold text-white">
+	{#if countdown >= 0}
+		剩餘時間：{countdown} seconds remaining
+	{:else}
+		時間到，繪畫上傳中！Time's up！The image is uploading！
+	{/if}
+</div>

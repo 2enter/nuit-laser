@@ -3,21 +3,30 @@ import { MAX_PAGE_NUM } from '@/pages';
 
 class SysState {
 	processing = $state(false);
-	errorMessage = $state<string | null>(null);
 	pageNum = $state<number>(0);
 	dialog = $state<HTMLDialogElement>();
 	startTime = $state<number>();
+	dialogMessage = $state<string | null>(null);
+	dialogHeader = $state<string | null>(null);
+	onDialogClose = () => {};
 
-	popError = (message: string) => {
-		this.errorMessage = message;
+	popDialog = (header: string, message: string, onclose?: () => void) => {
+		this.dialogMessage = message;
+		this.dialogHeader = header;
+		if (onclose) {
+			this.onDialogClose = onclose;
+		}
 		if (!this.dialog) return;
 		this.dialog.showModal();
 	};
 
-	closeError = () => {
-		this.errorMessage = null;
+	closeDialog = () => {
 		if (!this.dialog) return;
 		this.dialog.close();
+		this.onDialogClose();
+		this.dialogMessage = null;
+		this.dialogHeader = null;
+		this.onDialogClose = () => {};
 	};
 
 	startTimer = () => {
