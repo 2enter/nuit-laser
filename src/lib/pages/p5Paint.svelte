@@ -80,13 +80,25 @@
 		};
 	};
 
+	function isIOS() {
+		return (
+			['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(
+				navigator.platform
+			) ||
+			// iPad on iOS 13 detection
+			(navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+		);
+	}
 	async function genSubmitData() {
+		if (!isIOS) {
+			await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm'));
+		}
+
 		const el = document.querySelector('svg') as SVGSVGElement;
 		const str = new XMLSerializer().serializeToString(el);
 		const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
 		svgFile = new File([blob], 'svg.svg', { type: blob.type });
 
-		await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm'));
 		const png = new Resvg(str).render().asPng();
 		//@ts-ignore
 		const pngBlob = new Blob([png], { type: 'image/png' });
