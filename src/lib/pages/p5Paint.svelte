@@ -45,9 +45,9 @@
 				return;
 			}
 			if (sysState.dialogMessage) return;
+			const { mouseX, mouseY } = p5;
 			p5.stroke(hue, 200, 130);
 			if (!!lastPos) {
-				const { mouseX, mouseY } = p5;
 				if (mouseX > p5.width || mouseX < 0 || mouseY > p5.height || mouseY < 0) {
 					lastPos = undefined;
 					return;
@@ -61,7 +61,7 @@
 				}
 			}
 			if (!lastPos) {
-				lastPos = [p5.mouseX, p5.mouseY];
+				lastPos = [mouseX, mouseY];
 			}
 		};
 
