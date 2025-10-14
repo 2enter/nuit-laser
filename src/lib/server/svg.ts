@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import pathBounds from 'svg-path-bounds';
+import type { Cheerio } from 'cheerio';
 
 type Mat = [number, number, number, number, number, number]; // a,b,c,d,e,f (SVG matrix)
 const I: Mat = [1, 0, 0, 1, 0, 0];
@@ -98,7 +99,7 @@ function expandForStroke(
 	return { minX: b.minX - grow, minY: b.minY - grow, maxX: b.maxX + grow, maxY: b.maxY + grow };
 }
 
-function bboxOfElement($el: cheerio.Cheerio, mAccum: Mat) {
+function bboxOfElement($el: Cheerio<any>, mAccum: Mat) {
 	const name = $el[0].tagName;
 	const tr = parseTransform($el.attr('transform'));
 	const m = mul(mAccum, tr);
