@@ -106,7 +106,6 @@
 		await fetch('/api/upload', { method: 'POST', body: formdata });
 
 		sysState.endProcess();
-		window.location.reload();
 	}
 
 	function popTutor() {
@@ -130,6 +129,7 @@
 			countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
 			if (countdown <= 0) {
 				upload();
+				window.location.reload();
 			}
 		});
 		return () => {
