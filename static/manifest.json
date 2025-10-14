@@ -1,12 +1,12 @@
 {
-	"name": "<APP_NAME>",
-	"short_name": "<SHORT_APP_NAME>",
+	"name": "2ENTER LASER PANEL",
+	"short_name": "2ENTER LASER",
 	"start_url": "/",
 	"display": "fullscreen",
 	"prefer_related_applications": false,
 	"background_color": "#17191c",
 	"theme_color": "#ff3f20",
-	"description": "<APP_NAME> by 2ENTER studio",
+	"description": "Laser Panel by 2ENTER studio",
 	"icons": [
 		{
 			"src": "pwa-64x64.png",
