@@ -205,18 +205,18 @@
 	</button>
 	{#each HUES as i}
 		<label
-			class="size-14 rounded-full border-3 border-transparent shadow-inner transition-all duration-400
-			{hue === i ? 'shadow-black/70' : 'shadow-white/50'}"
-			style="background-color: hsl({i}, 100%, 60%)"
+			class="size-14 rounded-full shadow-inner transition-all duration-400
+			{hue === i && !rainbowMode ? 'shadow-black/70' : 'shadow-white/90'}"
+			style="background-color: hsla({i}, {rainbowMode ? 50 : 100}%, 50%, {rainbowMode ? 0.3 : 0.9})"
 			onclick={() => (rainbowMode = false)}
 		>
 			<input type="radio" name="hues" bind:group={hue} value={i} hidden />
 		</label>
 	{/each}
+
 	<label
-		class="size-14 rounded-full border-4"
-		class:border-black={rainbowMode}
-		class:border-transparent={!rainbowMode}
+		class="size-14 rounded-full shadow-inner shadow-black/70"
+		class:grayscale={!rainbowMode}
 		style:background-image="url(/rainbow.webp)"
 	>
 		<input type="checkbox" bind:checked={rainbowMode} hidden />
@@ -230,7 +230,7 @@
 			style:background-color="hsla({hue}, 100%, 60%, 0.7)"
 			style:height="{(1 - inkRatio) * 100}%"
 			class:invisible={usedInk >= TOTAL_INK}
-			class="shadow-inner shadow-white/80 transition-all duration-500"
+			class="shadow-inner shadow-white/80 transition-all duration-300"
 		></div>
 	</div>
 </div>
