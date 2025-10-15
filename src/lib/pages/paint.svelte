@@ -199,7 +199,9 @@
 			p5?.clear();
 			usedInk = 0;
 		}}
-		class="mb-3"
+		class="mb-3 transition-opacity"
+		disabled={usedInk === 0}
+		class:opacity-30={usedInk === 0}
 	>
 		<RotateCcw size="56px" />
 	</button>
