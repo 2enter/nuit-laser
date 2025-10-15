@@ -72,6 +72,7 @@
 			if (!lastPos) {
 				lastPos = [mouseX, mouseY];
 			}
+			return false;
 		};
 
 		p5.touchEnded = () => {
