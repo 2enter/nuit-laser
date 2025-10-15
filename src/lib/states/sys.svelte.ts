@@ -43,7 +43,7 @@ class SysState {
 	processing = $state(false);
 	pageNum = $state<number>(0);
 	startTime = $state<number>();
-	dialog = $state(new Dialog());
+	dialog = new Dialog();
 
 	startTimer = () => {
 		this.startTime = Date.now();
