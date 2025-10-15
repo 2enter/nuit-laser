@@ -80,7 +80,6 @@
 			if (sysState.dialog.opened) {
 				return;
 			}
-			nextHue();
 		};
 	};
 
