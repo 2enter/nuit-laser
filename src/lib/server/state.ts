@@ -1,7 +1,7 @@
+import fs from 'fs-extra';
 import { DAC } from '@laser-dac/core';
 import { loadSvgFile, Rect, Scene, Svg } from '@laser-dac/draw';
 import { LasercubeWifi } from '@laser-dac/lasercube-wifi';
-import fs from 'fs-extra';
 
 const PPS = 30000;
 const FPS = 5;
@@ -32,7 +32,6 @@ class ServerState {
 			size: SIZE,
 			waitAmount: WAIT_AMOUNT,
 			blankingAmount: BLANK_AMOUNT
-			// color: [Math.random(), Math.random(), Math.random()]
 		});
 
 		this.scene.add(svg);

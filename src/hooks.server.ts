@@ -1,6 +1,5 @@
 import type { Handle, ServerInit } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
-import { getDac } from '@/server/laser';
 import { serverState } from '@/server/state';
 
 const handleParaglide: Handle = ({ event, resolve }) =>

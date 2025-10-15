@@ -65,7 +65,7 @@
 					// const ink = dist * weight;
 					if (rainbowMode) nextHue();
 					usedInk += dist;
-					p5.line(mouseX, mouseY, lastPos[0], lastPos[1]);
+					p5.line(lastPos[0], lastPos[1], mouseX, mouseY);
 					lastPos = [mouseX, mouseY];
 				}
 			}
