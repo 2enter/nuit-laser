@@ -258,7 +258,7 @@
 {#if sysState.processing}
 	<div in:fade class="full-screen bg-white/80"></div>
 {:else}
-	<div in:fade class="full-screen center-content">
+	<div in:fade class="pointer-events-none full-screen center-content">
 		<img src="/press-bg.webp" class="w-[70%]" alt="" />
 	</div>
 {/if}
