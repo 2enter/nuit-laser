@@ -6,6 +6,11 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+	// build: {
+	// 	rollupOptions: {
+	// 		external: ['sharp']
+	// 	}
+	// },
 	plugins: [
 		tailwindcss(),
 		sveltekit(),
@@ -17,10 +22,10 @@ export default defineConfig({
 		mkcert()
 	],
 	ssr: {
-		external: ['@resvg/resvg-js']
+		external: ['@resvg/resvg-js', 'sharp']
 	},
 	optimizeDeps: {
-		exclude: ['@resvg/resvg-js']
+		exclude: ['@resvg/resvg-js', 'sharp']
 	},
 	server: {
 		host: '0.0.0.0',
