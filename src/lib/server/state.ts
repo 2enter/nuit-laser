@@ -1,7 +1,9 @@
+import sharp from 'sharp';
 import fs from 'fs-extra';
 import { DAC } from '@laser-dac/core';
-import { loadSvgFile, Rect, Scene, Svg } from '@laser-dac/draw';
+import { loadSvgFile, Scene, Svg } from '@laser-dac/draw';
 import { LasercubeWifi } from '@laser-dac/lasercube-wifi';
+import { MODE } from '@/config';
 
 const PPS = 30000;
 const FPS = 5;
@@ -40,30 +42,43 @@ class ServerState {
 	async updateScene(pos: number, id: number) {
 		const { pos: anotherPos, id: anotherId } = this.getAnotherPosAndId(pos);
 
-		this.scene.reset();
-		this.addSVG(pos, id);
-		this.addSVG(anotherPos, anotherId);
-		// this.scene.add(
-		// 	new Rect({
-		// 		width: 1,
-		// 		height: 1,
-		// 		x: 0,
-		// 		y: 0,
-		// 		color: [1, 1, 1]
-		// 	})
-		// );
+		if (MODE === 'cube') {
+			this.scene.reset();
+			this.addSVG(pos, id);
+			this.addSVG(anotherPos, anotherId);
 
-		// make the total point number under 2000
-		const pointAmount = this.scene.points.length;
-		if (pointAmount > MAX_POINT) {
-			const toRemove = pointAmount - MAX_POINT;
-			const removeRatio = toRemove / pointAmount;
-			this.scene.points = this.scene.points.filter(() => Math.random() > removeRatio);
+			// make the total point number under 2000
+			const pointAmount = this.scene.points.length;
+			if (pointAmount > MAX_POINT) {
+				const toRemove = pointAmount - MAX_POINT;
+				const removeRatio = toRemove / pointAmount;
+				this.scene.points = this.scene.points.filter(() => Math.random() > removeRatio);
+			}
+
+			console.log(pointAmount, '-->', this.scene.points.length);
+			this.dac.stream(this.scene);
+		} else {
+			const left = await sharp(`./uploads/${pos}/${id}.png`, {}).toBuffer();
+			const right = await sharp(`./uploads/${anotherPos}/${anotherId}.png`).toBuffer();
+
+			await sharp({
+				create: {
+					width: 1000,
+					height: 1000,
+					channels: 4,
+					// transparent background; change if you want a color fill
+					background: { r: 0, g: 0, b: 0, alpha: 0 }
+				}
+			})
+				.composite([
+					{ input: left, left: pos < anotherPos ? 0 : 500, top: 0 },
+					{ input: right, left: pos < anotherPos ? 500 : 0, top: 0 }
+				])
+				.png() // change to .jpeg() if you want JPG
+				.toFile(`./uploads/${pos < 2 ? 'left' : 'right'}.png`);
 		}
 
-		console.log(pointAmount, '-->', this.scene.points.length);
 		this.currentDisplay[pos] = id;
-		this.dac.stream(this.scene);
 	}
 
 	async initCurrentDisplayIds() {
@@ -72,7 +87,7 @@ class ServerState {
 			let max = -Infinity;
 			for (const e of entries) {
 				if (!e.isFile()) continue;
-				const m = e.name.match(/^(\d+)\.svg$/i);
+				const m = e.name.match(/^(\d+)\.png/i);
 				if (!m) continue;
 				const n = Number(m[1]);
 				if (Number.isSafeInteger(n) && n > max) max = n;
@@ -81,12 +96,12 @@ class ServerState {
 			this.currentDisplay[pos] = max === -Infinity ? 0 : max;
 		}
 		console.log(this.currentDisplay);
-		for (let i = 0; i < 1; i++) {
-			const toDisplay = this.currentDisplay[i];
-			if (toDisplay > 0) {
-				this.updateScene(i, toDisplay);
-			}
-		}
+		// for (let i = 0; i < 1; i++) {
+		// 	const toDisplay = this.currentDisplay[i];
+		// 	if (toDisplay > 0) {
+		// 		this.updateScene(i, toDisplay);
+		// 	}
+		// }
 	}
 
 	dacConnect() {

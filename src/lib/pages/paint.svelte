@@ -7,12 +7,14 @@
 	import { RotateCcw, CircleQuestionMark, Send } from '@lucide/svelte';
 	import { getSysState } from '@/states';
 	import { sleep } from '@2enter/web-kit/runtime';
+	import { FILE_FORMAT, MODE } from '@/config';
 
-	const sysState = getSysState();
 	const WAIT_TIME = 60;
+	const sysState = getSysState();
 
-	let svgFile: File;
-	let pngFile: File;
+	// let svgFile: File;
+	// let pngFile: File;
+	let file: File;
 	let wasmReady = false;
 	let rainbowMode = $state(false);
 	let p5: P5 | undefined;
@@ -37,8 +39,15 @@
 
 		p5.setup = () => {
 			const height = p5.windowHeight;
-			//@ts-ignore
-			p5.createCanvas(height / 2, height, p5.SVG).parent('main');
+			const width = p5.windowWidth;
+			if (MODE === 'nuit') {
+				//@ts-ignore
+				p5.createCanvas(height / 2, height, p5.SVG).parent('main');
+			} else {
+				//@ts-ignore
+				p5.createCanvas(width, width, p5.SVG).parent('main');
+			}
+
 			p5.colorMode(p5.HSB);
 			p5.strokeWeight(WEIGHT);
 			p5.noFill();
@@ -98,12 +107,15 @@
 		const el = document.querySelector('svg') as SVGSVGElement;
 		const str = new XMLSerializer().serializeToString(el);
 		const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
-		svgFile = new File([blob], 'svg.svg', { type: blob.type });
+		if (MODE === 'cube') {
+			file = new File([blob], 'svg.svg', { type: blob.type });
+			return;
+		}
 
 		const png = new Resvg(str).render().asPng();
 		//@ts-ignore
 		const pngBlob = new Blob([png], { type: 'image/png' });
-		pngFile = new File([pngBlob], 'svg.png', { type: 'image/png' });
+		file = new File([pngBlob], 'svg.png', { type: 'image/png' });
 	}
 
 	async function wasmSetup() {
@@ -124,12 +136,10 @@
 		sysState.dialog.close();
 
 		await genSubmitData();
-		if (!svgFile) return;
+		if (!file) return;
 
-		// const pos = page.url.searchParams.get('pos') ?? '0';
 		const formdata = new FormData();
-		formdata.append('svg', svgFile);
-		formdata.append('png', pngFile);
+		formdata.append('file', file);
 		formdata.append('pos', pos);
 
 		await fetch('/api/upload', { method: 'POST', body: formdata });
@@ -206,6 +216,7 @@
 	>
 		<RotateCcw size="56px" />
 	</button>
+
 	{#each HUES as i}
 		<label
 			class="size-14 rounded-full shadow-inner transition-all duration-400
@@ -257,8 +268,8 @@
 
 {#if sysState.processing}
 	<div in:fade class="full-screen bg-white/80"></div>
-{:else}
+	<!-- {:else}
 	<div in:fade class="pointer-events-none full-screen center-content">
 		<img src="/press-bg.webp" class="w-[70%]" alt="" />
-	</div>
+	</div> -->
 {/if}

@@ -1,6 +1,7 @@
 import type { Handle, ServerInit } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { serverState } from '@/server/state';
+import { MODE } from '@/config';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -13,8 +14,10 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 
 export const init: ServerInit = async () => {
 	await serverState.initCurrentDisplayIds();
-	serverState.dacConnect();
-	serverState.dacStart();
+	if (MODE === 'cube') {
+		serverState.dacConnect();
+		serverState.dacStart();
+	}
 };
 
 export const handle: Handle = handleParaglide;

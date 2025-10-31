@@ -4,27 +4,29 @@ import { fitSvgXmlToBox } from '@/server/svg';
 import { serverState } from '@/server/state';
 import { optimizeSvgForLaserCube } from '@/server/optimize.js';
 import { sleep } from '@2enter/web-kit/runtime';
+import { FILE_FORMAT } from '@/config.js';
 
 export const POST = async ({ request }) => {
 	console.log('receiving request');
 	const fd = await request.formData();
-	const svg = fd.get('svg') as File;
-	const png = fd.get('png') as File;
+	const file = fd.get('file') as File;
 	const pos = parseInt(fd.get('pos') as string);
 
 	const id = serverState.currentDisplay[pos] + 1;
+	const resultPath = `uploads/${pos}/${id}.${FILE_FORMAT}`;
 
-	const svgPath = `uploads/${pos}/${id}.svg`;
-	const pngPath = `uploads/${pos}/${id}.png`;
+	const buf = await file.arrayBuffer();
 
-	const svgBuf = await svg.arrayBuffer();
-	const pngBuf = await png.arrayBuffer();
-
-	const svgStr = new TextDecoder().decode(svgBuf);
-	const processedSvg = fitSvgXmlToBox(optimizeSvgForLaserCube(svgStr), 500, 1000, 100);
-
-	await fs.promises.writeFile(svgPath, Buffer.from(processedSvg));
-	await fs.promises.writeFile(pngPath, Buffer.from(pngBuf));
+	switch (FILE_FORMAT) {
+		case 'svg':
+			const svgStr = new TextDecoder().decode(buf);
+			const processedSvg = fitSvgXmlToBox(optimizeSvgForLaserCube(svgStr), 500, 1000, 50);
+			await fs.promises.writeFile(resultPath, Buffer.from(processedSvg));
+			break;
+		case 'png':
+			await fs.promises.writeFile(resultPath, Buffer.from(buf));
+			break;
+	}
 
 	await sleep(20);
 	await serverState.updateScene(pos, id);
