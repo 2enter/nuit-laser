@@ -107,7 +107,7 @@
 		const el = document.querySelector('svg') as SVGSVGElement;
 		const str = new XMLSerializer().serializeToString(el);
 		const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
-		if (MODE === 'cube') {
+		if (FILE_FORMAT === 'svg') {
 			file = new File([blob], 'svg.svg', { type: blob.type });
 			return;
 		}

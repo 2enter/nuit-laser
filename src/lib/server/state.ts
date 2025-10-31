@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import { DAC } from '@laser-dac/core';
 import { loadSvgFile, Scene, Svg } from '@laser-dac/draw';
 import { LasercubeWifi } from '@laser-dac/lasercube-wifi';
+import { Beyond } from '@laser-dac/beyond';
 import { MODE } from '@/config';
 
 const PPS = 30000;
@@ -42,43 +43,43 @@ class ServerState {
 	async updateScene(pos: number, id: number) {
 		const { pos: anotherPos, id: anotherId } = this.getAnotherPosAndId(pos);
 
-		if (MODE === 'cube') {
-			this.scene.reset();
-			this.addSVG(pos, id);
-			this.addSVG(anotherPos, anotherId);
+		// if (MODE === 'cube') {
+		this.scene.reset();
+		this.addSVG(pos, id);
+		this.addSVG(anotherPos, anotherId);
 
-			// make the total point number under 2000
-			const pointAmount = this.scene.points.length;
-			if (pointAmount > MAX_POINT) {
-				const toRemove = pointAmount - MAX_POINT;
-				const removeRatio = toRemove / pointAmount;
-				this.scene.points = this.scene.points.filter(() => Math.random() > removeRatio);
-			}
-
-			console.log(pointAmount, '-->', this.scene.points.length);
-			this.dac.stream(this.scene);
-		} else {
-			const left = await sharp(`./uploads/${pos}/${id}.png`, {}).resize(500, 1000).toBuffer();
-			const right = await sharp(`./uploads/${anotherPos}/${anotherId}.png`)
-				.resize(500, 1000)
-				.toBuffer();
-
-			await sharp({
-				create: {
-					width: 1000,
-					height: 1000,
-					channels: 4,
-					// transparent background; change if you want a color fill
-					background: { r: 0, g: 0, b: 0, alpha: 0 }
-				}
-			})
-				.composite([
-					{ input: left, left: pos < anotherPos ? 0 : 500, top: 0 },
-					{ input: right, left: pos < anotherPos ? 500 : 0, top: 0 }
-				])
-				.png() // change to .jpeg() if you want JPG
-				.toFile(`./uploads/${pos < 2 ? 'left' : 'right'}.png`);
+		// make the total point number under 2000
+		const pointAmount = this.scene.points.length;
+		if (pointAmount > MAX_POINT) {
+			const toRemove = pointAmount - MAX_POINT;
+			const removeRatio = toRemove / pointAmount;
+			this.scene.points = this.scene.points.filter(() => Math.random() > removeRatio);
 		}
+
+		console.log(pointAmount, '-->', this.scene.points.length);
+		this.dac.stream(this.scene);
+		// } else {
+		// 	const left = await sharp(`./uploads/${pos}/${id}.png`, {}).resize(500, 1000).toBuffer();
+		// 	const right = await sharp(`./uploads/${anotherPos}/${anotherId}.png`)
+		// 		.resize(500, 1000)
+		// 		.toBuffer();
+
+		// 	await sharp({
+		// 		create: {
+		// 			width: 1000,
+		// 			height: 1000,
+		// 			channels: 4,
+		// 			// transparent background; change if you want a color fill
+		// 			background: { r: 0, g: 0, b: 0, alpha: 0 }
+		// 		}
+		// 	})
+		// 		.composite([
+		// 			{ input: left, left: pos < anotherPos ? 0 : 500, top: 0 },
+		// 			{ input: right, left: pos < anotherPos ? 500 : 0, top: 0 }
+		// 		])
+		// 		.png() // change to .jpeg() if you want JPG
+		// 		.toFile(`./uploads/${pos < 2 ? 'left' : 'right'}.png`);
+		// }
 
 		this.currentDisplay[pos] = id;
 	}
@@ -108,7 +109,11 @@ class ServerState {
 
 	dacConnect() {
 		if (this.started) return;
-		this.dac.use(new LasercubeWifi());
+		if (MODE === 'nuit') {
+			this.dac.use(new Beyond());
+		} else {
+			this.dac.use(new LasercubeWifi());
+		}
 	}
 
 	async dacStart() {
