@@ -93,7 +93,6 @@
 		};
 	};
 
-
 	function nextHue() {
 		let currentHueIndex = HUES.indexOf(hue);
 		if (currentHueIndex === -1) {
@@ -145,7 +144,8 @@
 
 		await fetch('/api/upload', { method: 'POST', body: formdata });
 		await sleep(3000);
-		p5?.clear()
+		p5?.clear();
+		usedInk = 0;
 
 		// window.location.reload();
 		sysState.endProcess();
