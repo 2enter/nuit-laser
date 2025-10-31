@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import fs from 'fs-extra';
 import { DAC } from '@laser-dac/core';
 import { loadSvgFile, Scene, Svg } from '@laser-dac/draw';
@@ -57,7 +58,6 @@ class ServerState {
 			console.log(pointAmount, '-->', this.scene.points.length);
 			this.dac.stream(this.scene);
 		} else {
-			const sharp = (await import('sharp')).default;
 			const left = await sharp(`./uploads/${pos}/${id}.png`, {}).resize(500, 1000).toBuffer();
 			const right = await sharp(`./uploads/${anotherPos}/${anotherId}.png`)
 				.resize(500, 1000)
