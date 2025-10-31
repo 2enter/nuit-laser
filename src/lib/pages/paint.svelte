@@ -145,9 +145,10 @@
 
 		await fetch('/api/upload', { method: 'POST', body: formdata });
 		await sleep(3000);
+		p5?.clear()
 
-		window.location.reload();
-		// sysState.endProcess();
+		// window.location.reload();
+		sysState.endProcess();
 	}
 
 	function popTutor() {
@@ -170,7 +171,9 @@
 					countdown = WAIT_TIME - Math.floor(sysState.getDuration() / 1000);
 					if (countdown <= 0) {
 						clearInterval(timerInterval);
+						// window.location.reload();
 						await upload();
+						window.location.reload();
 					}
 				}, 1000);
 			}
