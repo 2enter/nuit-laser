@@ -22,8 +22,8 @@
 
 	const initHueIndex = Math.floor(Math.random() * 5);
 	const HUES = [0, 80, 160, 240, 320] as const;
-	const TOTAL_INK = 5000;
-	const WEIGHT = 8;
+	const TOTAL_INK = 3000;
+	const WEIGHT = 1;
 
 	let hue = $state<(typeof HUES)[number]>(HUES[initHueIndex]);
 	let usedInk = $state(0);
@@ -70,7 +70,7 @@
 					return;
 				}
 				const dist = p5.dist(mouseX, mouseY, lastPos[0], lastPos[1]);
-				if (dist > 20) {
+				if (dist > 12) {
 					// const ink = dist * weight;
 					if (rainbowMode) nextHue();
 					usedInk += dist;
@@ -92,6 +92,7 @@
 			}
 		};
 	};
+
 
 	function nextHue() {
 		let currentHueIndex = HUES.indexOf(hue);

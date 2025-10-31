@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { json } from '@sveltejs/kit';
-import { fitSvgXmlToBox } from '@/server/svg';
+import { convertStrokeToHex, fitSvgXmlToBox } from '@/server/svg';
 import { serverState } from '@/server/state';
 import { optimizeSvgForLaserCube } from '@/server/optimize.js';
 import { sleep } from '@2enter/web-kit/runtime';
@@ -17,16 +17,17 @@ export const POST = async ({ request }) => {
 
 	const buf = await file.arrayBuffer();
 
-	switch (FILE_FORMAT) {
-		case 'svg':
-			const svgStr = new TextDecoder().decode(buf);
-			const processedSvg = fitSvgXmlToBox(optimizeSvgForLaserCube(svgStr), 500, 1000, 50);
-			await fs.promises.writeFile(resultPath, Buffer.from(processedSvg));
-			break;
-		case 'png':
-			await fs.promises.writeFile(resultPath, Buffer.from(buf));
-			break;
-	}
+	// switch (FILE_FORMAT) {
+	// case 'svg':
+	const svgStr = new TextDecoder().decode(buf);
+	const processedSvg = fitSvgXmlToBox(optimizeSvgForLaserCube(svgStr), 500, 1000, 50);
+	// const processedSvg = fitSvgXmlToBox((svgStr), 500, 1000, 50);
+	await fs.promises.writeFile(resultPath, Buffer.from(processedSvg));
+	// break;
+	// case 'png':
+	// 	await fs.promises.writeFile(resultPath, Buffer.from(buf));
+	// 	break;
+	// }
 
 	await sleep(20);
 	await serverState.updateScene(pos, id);

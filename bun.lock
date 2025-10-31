@@ -7,6 +7,7 @@
         "body-parser": "^2.2.0",
         "dotenv": "^17.2.2",
         "express": "^5.1.0",
+        "sharp": "^0.34.4",
       },
       "devDependencies": {
         "@2enter/web-kit": "^0.6.9",
@@ -36,7 +37,6 @@
         "prettier": "^3.4.2",
         "prettier-plugin-svelte": "^3.3.3",
         "prettier-plugin-tailwindcss": "^0.6.11",
-        "sharp": "^0.34.4",
         "svelte": "^5.0.0",
         "svelte-check": "^4.0.0",
         "svg-path-bounds": "^1.0.2",

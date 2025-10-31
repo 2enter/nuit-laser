@@ -13,12 +13,14 @@
 
 	onMount(() => {
 		let eruda: Eruda;
+		/*
 		if (dev) {
 			setTimeout(async () => {
 				eruda = (await import('eruda')).default;
 				eruda.init();
 			});
 		}
+		*/
 
 		return () => {
 			eruda?.destroy();

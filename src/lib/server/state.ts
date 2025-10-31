@@ -1,17 +1,19 @@
 import sharp from 'sharp';
 import fs from 'fs-extra';
 import { DAC } from '@laser-dac/core';
-import { loadSvgFile, Scene, Svg } from '@laser-dac/draw';
+import { Line, loadSvgFile, Scene, Svg } from '@laser-dac/draw';
 import { LasercubeWifi } from '@laser-dac/lasercube-wifi';
 import { Beyond } from '@laser-dac/beyond';
 import { MODE } from '@/config';
 
-const PPS = 30000;
-const FPS = 5;
-const SIZE = 0.35;
-const WAIT_AMOUNT = 20;
-const BLANK_AMOUNT = 2;
-const MAX_POINT = 1650;
+const PPS = 12000;
+const FPS = 10;
+const SIZE = 0.20;
+// const WAIT_AMOUNT = undefined;
+// const BLANK_AMOUNT = undefined;
+const WAIT_AMOUNT = 1;
+const BLANK_AMOUNT = 10;
+const MAX_POINT = 3000;
 
 class ServerState {
 	dac: DAC;
@@ -30,25 +32,41 @@ class ServerState {
 		const margin = (1 - SIZE * 2) / 3;
 		const svg = new Svg({
 			file,
-			x: pos % 2 !== 1 ? margin : SIZE + margin,
-			y: margin,
+			// x: pos % 2 !== 1 ? margin : SIZE + margin,
+			x: pos * 0.25,
+			y: 0,
 			size: SIZE,
 			waitAmount: WAIT_AMOUNT,
 			blankingAmount: BLANK_AMOUNT
 		});
 
-		this.scene.add(svg);
+		this.scene.add(svg, (points) => points.map(p => {
+			// const distToCenter = p.y - 0.5;
+			// p.y += distToCenter * 0.3;
+			p.y *= 2.5
+			return p;
+		})
+		);
 	}
 
+	// drawLine(option) {
+	// 	this.scene.add(new Line(option));
+	// }
+
 	async updateScene(pos: number, id: number) {
-		const { pos: anotherPos, id: anotherId } = this.getAnotherPosAndId(pos);
+		const items = this.getAnotherPosAndId(pos);
 
 		// if (MODE === 'cube') {
 		this.scene.reset();
-		this.addSVG(pos, id);
-		this.addSVG(anotherPos, anotherId);
+		this.scene = new Scene();
 
-		// make the total point number under 2000
+
+		this.addSVG(pos, id);
+		for (const { pos, id } of items) {
+			this.addSVG(pos, id);
+		}
+
+		// make the total point number under MAX_POINT
 		const pointAmount = this.scene.points.length;
 		if (pointAmount > MAX_POINT) {
 			const toRemove = pointAmount - MAX_POINT;
@@ -57,6 +75,9 @@ class ServerState {
 		}
 
 		console.log(pointAmount, '-->', this.scene.points.length);
+		// this.dac.removeAll();
+		// this.dacConnect()
+		// await this.dacStart()
 		this.dac.stream(this.scene);
 		// } else {
 		// 	const left = await sharp(`./uploads/${pos}/${id}.png`, {}).resize(500, 1000).toBuffer();
@@ -90,7 +111,7 @@ class ServerState {
 			let max = -Infinity;
 			for (const e of entries) {
 				if (!e.isFile()) continue;
-				const m = e.name.match(/^(\d+)\.png/i);
+				const m = e.name.match(/^(\d+)\.svg/i);
 				if (!m) continue;
 				const n = Number(m[1]);
 				if (Number.isSafeInteger(n) && n > max) max = n;
@@ -99,12 +120,16 @@ class ServerState {
 			this.currentDisplay[pos] = max === -Infinity ? 0 : max;
 		}
 		console.log(this.currentDisplay);
-		// for (let i = 0; i < 1; i++) {
-		// 	const toDisplay = this.currentDisplay[i];
-		// 	if (toDisplay > 0) {
-		// 		this.updateScene(i, toDisplay);
-		// 	}
-		// }
+		for (let i = 0; i < 1; i++) {
+			const toDisplay = this.currentDisplay[i];
+			if (toDisplay > 0) {
+				this.updateScene(i, toDisplay);
+			}
+		}
+
+
+		// this.scene.add(new Line({from : {x: 0.12423, y: 0.3920}, to: {x: 0.332590, y: 0.9203448455}, color: [0.90384, 0.3248293, 0.2383923484]}))
+	
 	}
 
 	dacConnect() {
@@ -123,19 +148,25 @@ class ServerState {
 		this.dac.stream(this.scene, PPS, FPS);
 	}
 
-	getAnotherPosAndId(pos: number): { pos: number; id: number } {
-		switch (pos) {
-			case 0:
-				return { pos: 1, id: this.currentDisplay[1] };
-			case 1:
-				return { pos: 0, id: this.currentDisplay[0] };
-			case 2:
-				return { pos: 3, id: this.currentDisplay[3] };
-			case 3:
-				return { pos: 2, id: this.currentDisplay[2] };
-			default:
-				throw new Error('Invalid id');
+	getAnotherPosAndId(pos: number): { pos: number; id: number }[] {
+		const result = []
+		for (const [i, a] of this.currentDisplay.entries()) {
+			if (i === pos) continue;
+			result.push({ pos: i, id: a });
 		}
+		return result
+		// switch (pos) {
+		// 	case 0:
+		// 		return { pos: 1, id: this.currentDisplay[1] };
+		// 	case 1:
+		// 		return { pos: 0, id: this.currentDisplay[0] };
+		// 	case 2:
+		// 		return { pos: 3, id: this.currentDisplay[3] };
+		// 	case 3:
+		// 		return { pos: 2, id: this.currentDisplay[2] };
+		// 	default:
+		// 		throw new Error('Invalid id');
+		// }
 	}
 }
 
