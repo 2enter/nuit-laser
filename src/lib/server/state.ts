@@ -58,8 +58,10 @@ class ServerState {
 			console.log(pointAmount, '-->', this.scene.points.length);
 			this.dac.stream(this.scene);
 		} else {
-			const left = await sharp(`./uploads/${pos}/${id}.png`, {}).toBuffer();
-			const right = await sharp(`./uploads/${anotherPos}/${anotherId}.png`).toBuffer();
+			const left = await sharp(`./uploads/${pos}/${id}.png`, {}).resize(500, 1000).toBuffer();
+			const right = await sharp(`./uploads/${anotherPos}/${anotherId}.png`)
+				.resize(500, 1000)
+				.toBuffer();
 
 			await sharp({
 				create: {
